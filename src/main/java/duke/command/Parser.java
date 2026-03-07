@@ -123,6 +123,8 @@ public class Parser {
                         "OOPS!!! Please provide a sort criterion: name, priority, or date.");
             }
             return new Command(CommandType.SORT, parts[1].trim(), null, null, null);
+        case "stats":
+            return new Command(CommandType.STATS, null, null, null, null);
         case "help":
             return new Command(CommandType.HELP, null, null, null, null);
         default:

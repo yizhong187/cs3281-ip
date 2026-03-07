@@ -164,6 +164,15 @@ public class Ui {
         );
     }
 
+    /**
+     * Displays an arbitrary message wrapped in separator lines.
+     *
+     * @param message the message to display
+     */
+    public void showMessage(String message) {
+        printBlock(message);
+    }
+
     /** Displays a warning that saved tasks could not be loaded. */
     public void showLoadingError() {
         System.out.println("     Warning: Could not load saved tasks. Starting fresh.");

@@ -186,6 +186,9 @@ public class Command {
             storage.save(taskList);
             ui.showTaskList(taskList);
             break;
+        case STATS:
+            ui.showMessage(getOutput(taskList, storage));
+            break;
         case HELP:
             ui.showHelp();
             break;
@@ -363,6 +366,25 @@ public class Command {
                     + "  find <keyword>\n"
                     + "  sort name|priority|date\n"
                     + "  bye";
+        case STATS: {
+            long done = IntStream.range(0, taskList.size())
+                    .filter(i -> taskList.get(i).isDone()).count();
+            long total = taskList.size();
+            long todos = IntStream.range(0, taskList.size())
+                    .filter(i -> taskList.get(i) instanceof duke.task.Todo).count();
+            long deadlines = IntStream.range(0, taskList.size())
+                    .filter(i -> taskList.get(i) instanceof Deadline).count();
+            long events = IntStream.range(0, taskList.size())
+                    .filter(i -> taskList.get(i) instanceof Event).count();
+            long pctDone = total == 0 ? 0 : done * 100 / total;
+            return "Task Statistics:\n"
+                    + "  Total:     " + total + "\n"
+                    + "  Done:      " + done + " (" + pctDone + "%)\n"
+                    + "  Undone:    " + (total - done) + "\n"
+                    + "  Todos:     " + todos + "\n"
+                    + "  Deadlines: " + deadlines + "\n"
+                    + "  Events:    " + events;
+        }
         case BYE:
             return "Bye. Hope to see you again soon!";
         default:
