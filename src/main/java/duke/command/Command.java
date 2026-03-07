@@ -463,10 +463,18 @@ public class Command {
         case EVENT: {
             boolean dup = taskList.hasDuplicate(description);
             Task task = buildTask();
+            ArrayList<Task> conflicts = (task instanceof Event)
+                    ? taskList.findOverlappingEvents((Event) task, -1)
+                    : new ArrayList<>();
             taskList.add(task);
             storage.save(taskList);
             String msg = "Got it. I've added this task:\n  " + task
                     + "\nNow you have " + taskList.size() + " tasks in the list.";
+            if (!conflicts.isEmpty()) {
+                String conflictStr = conflicts.stream().map(Task::toString)
+                        .collect(Collectors.joining("\n  "));
+                msg = "Warning: This event overlaps with:\n  " + conflictStr + "\n" + msg;
+            }
             if (dup) {
                 msg = "Warning: A task with this description already exists!\n" + msg;
             }

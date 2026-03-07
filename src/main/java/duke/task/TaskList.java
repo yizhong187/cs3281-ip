@@ -189,6 +189,39 @@ public class TaskList {
         return result;
     }
 
+    /**
+     * Finds existing events whose date range overlaps with the given event's date range.
+     * Excludes the task at {@code excludeIndex} (use -1 to check all tasks).
+     *
+     * @param newEvent     the event to check against existing events
+     * @param excludeIndex the 0-based index to skip, or -1 to check all
+     * @return list of conflicting events
+     */
+    public ArrayList<Task> findOverlappingEvents(Event newEvent, int excludeIndex) {
+        ArrayList<Task> conflicts = new ArrayList<>();
+        LocalDate newFrom = newEvent.getFromDate();
+        LocalDate newTo = newEvent.getToDate();
+        if (newFrom == null || newTo == null) {
+            return conflicts;
+        }
+        for (int i = 0; i < tasks.size(); i++) {
+            if (i == excludeIndex) {
+                continue;
+            }
+            Task t = tasks.get(i);
+            if (t instanceof Event) {
+                Event e = (Event) t;
+                LocalDate eFrom = e.getFromDate();
+                LocalDate eTo = e.getToDate();
+                if (eFrom != null && eTo != null
+                        && !newTo.isBefore(eFrom) && !newFrom.isAfter(eTo)) {
+                    conflicts.add(t);
+                }
+            }
+        }
+        return conflicts;
+    }
+
     private boolean isOnDate(Task task, LocalDate date) {
         if (task instanceof Deadline) {
             LocalDate d = ((Deadline) task).getByDate();
