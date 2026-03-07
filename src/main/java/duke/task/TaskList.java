@@ -1,6 +1,8 @@
 package duke.task;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Manages a list of {@link Task} objects.
@@ -70,6 +72,40 @@ public class TaskList {
      */
     public ArrayList<Task> getAll() {
         return tasks;
+    }
+
+    /**
+     * Sorts this list in-place by the given criterion.
+     * Supported criteria: "name" (alphabetical), "priority" (HIGH first), "date" (earliest first).
+     *
+     * @param criterion the sort criterion
+     */
+    public void sortBy(String criterion) {
+        Comparator<Task> comparator;
+        switch (criterion.toLowerCase()) {
+        case "priority":
+            comparator = Comparator.comparingInt(t -> t.getPriority().ordinal());
+            break;
+        case "date":
+            comparator = (a, b) -> {
+                LocalDate da = (a instanceof Deadline) ? ((Deadline) a).getByDate() : null;
+                LocalDate db = (b instanceof Deadline) ? ((Deadline) b).getByDate() : null;
+                if (da == null && db == null) {
+                    return 0;
+                }
+                if (da == null) {
+                    return 1;
+                }
+                if (db == null) {
+                    return -1;
+                }
+                return da.compareTo(db);
+            };
+            break;
+        default:
+            comparator = Comparator.comparing(Task::getDescription, String.CASE_INSENSITIVE_ORDER);
+        }
+        tasks.sort(comparator);
     }
 
     /**

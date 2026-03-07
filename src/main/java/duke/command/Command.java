@@ -130,6 +130,11 @@ public class Command {
         case FIND:
             ui.showFoundTasks(taskList.find(description));
             break;
+        case SORT:
+            taskList.sortBy(description);
+            storage.save(taskList);
+            ui.showTaskList(taskList);
+            break;
         case HELP:
             ui.showHelp();
             break;
@@ -210,16 +215,28 @@ public class Command {
                     .collect(Collectors.joining("\n"));
             return "Here are the matching tasks in your list:\n" + matchLines;
         }
+        case SORT: {
+            taskList.sortBy(description);
+            storage.save(taskList);
+            if (taskList.size() == 0) {
+                return "No tasks to sort.";
+            }
+            String sortedLines = IntStream.range(0, taskList.size())
+                    .mapToObj(i -> (i + 1) + "." + taskList.get(i))
+                    .collect(Collectors.joining("\n"));
+            return "Tasks sorted by " + description + ":\n" + sortedLines;
+        }
         case HELP:
             return "Available commands:\n"
                     + "  list\n"
-                    + "  todo <desc>\n"
-                    + "  deadline <desc> /by <date>\n"
-                    + "  event <desc> /from <time> /to <time>\n"
+                    + "  todo <desc> [/priority high|medium|low]\n"
+                    + "  deadline <desc> /by <date> [/priority high|medium|low]\n"
+                    + "  event <desc> /from <time> /to <time> [/priority high|medium|low]\n"
                     + "  mark <num>\n"
                     + "  unmark <num>\n"
                     + "  delete <num>\n"
                     + "  find <keyword>\n"
+                    + "  sort name|priority|date\n"
                     + "  bye";
         case BYE:
             return "Bye. Hope to see you again soon!";

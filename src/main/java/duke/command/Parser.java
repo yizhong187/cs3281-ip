@@ -94,6 +94,12 @@ public class Parser {
                 throw new DukeException("OOPS!!! Please provide a keyword to search for.");
             }
             return new Command(CommandType.FIND, parts[1].trim(), null, null, null);
+        case "sort":
+            if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                throw new DukeException(
+                        "OOPS!!! Please provide a sort criterion: name, priority, or date.");
+            }
+            return new Command(CommandType.SORT, parts[1].trim(), null, null, null);
         case "help":
             return new Command(CommandType.HELP, null, null, null, null);
         default:
