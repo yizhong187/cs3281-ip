@@ -11,6 +11,8 @@ import duke.task.Todo;
 import duke.ui.Ui;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -86,23 +88,28 @@ public class Command {
             ui.showTaskList(taskList);
             break;
         case MARK: {
-            int index = parseIndex(description, taskList);
-            taskList.get(index).markDone();
-            ui.showTaskMarked(taskList.get(index));
+            for (int index : parseIndices(description, taskList)) {
+                taskList.get(index).markDone();
+                ui.showTaskMarked(taskList.get(index));
+            }
             storage.save(taskList);
             break;
         }
         case UNMARK: {
-            int index = parseIndex(description, taskList);
-            taskList.get(index).markUndone();
-            ui.showTaskUnmarked(taskList.get(index));
+            for (int index : parseIndices(description, taskList)) {
+                taskList.get(index).markUndone();
+                ui.showTaskUnmarked(taskList.get(index));
+            }
             storage.save(taskList);
             break;
         }
         case DELETE: {
-            int index = parseIndex(description, taskList);
-            Task removed = taskList.remove(index);
-            ui.showTaskDeleted(removed, taskList.size());
+            List<Integer> indices = parseIndices(description, taskList);
+            indices.sort(java.util.Collections.reverseOrder());
+            for (int index : indices) {
+                Task removed = taskList.remove(index);
+                ui.showTaskDeleted(removed, taskList.size());
+            }
             storage.save(taskList);
             break;
         }
@@ -210,23 +217,36 @@ public class Command {
             return "Here are the tasks in your list:\n" + taskLines;
         }
         case MARK: {
-            int index = parseIndex(description, taskList);
-            taskList.get(index).markDone();
+            List<Integer> markIndices = parseIndices(description, taskList);
+            StringBuilder markSb = new StringBuilder("Nice! I've marked these tasks as done:");
+            for (int index : markIndices) {
+                taskList.get(index).markDone();
+                markSb.append("\n  ").append(taskList.get(index));
+            }
             storage.save(taskList);
-            return "Nice! I've marked this task as done:\n  " + taskList.get(index);
+            return markSb.toString();
         }
         case UNMARK: {
-            int index = parseIndex(description, taskList);
-            taskList.get(index).markUndone();
+            List<Integer> unmarkIndices = parseIndices(description, taskList);
+            StringBuilder unmarkSb = new StringBuilder("OK, I've marked these tasks as not done:");
+            for (int index : unmarkIndices) {
+                taskList.get(index).markUndone();
+                unmarkSb.append("\n  ").append(taskList.get(index));
+            }
             storage.save(taskList);
-            return "OK, I've marked this task as not done yet:\n  " + taskList.get(index);
+            return unmarkSb.toString();
         }
         case DELETE: {
-            int index = parseIndex(description, taskList);
-            Task removed = taskList.remove(index);
+            List<Integer> delIndices = parseIndices(description, taskList);
+            delIndices.sort(java.util.Collections.reverseOrder());
+            StringBuilder delSb = new StringBuilder("Noted. I've removed these tasks:");
+            for (int index : delIndices) {
+                Task removed = taskList.remove(index);
+                delSb.append("\n  ").append(removed);
+            }
             storage.save(taskList);
-            return "Noted. I've removed this task:\n  " + removed
-                    + "\nNow you have " + taskList.size() + " tasks in the list.";
+            delSb.append("\nNow you have ").append(taskList.size()).append(" tasks in the list.");
+            return delSb.toString();
         }
         case TODO: {
             boolean dup = taskList.hasDuplicate(description);
@@ -348,6 +368,39 @@ public class Command {
         default:
             return "";
         }
+    }
+
+    /**
+     * Parses a space-separated list of 1-based indices and ranges (e.g. "1 3-5 7")
+     * and returns a list of unique 0-based indices in ascending order.
+     *
+     * @param indexStr the string to parse
+     * @param taskList the task list to validate against
+     * @return sorted list of 0-based indices
+     * @throws DukeException if any token is invalid or out of range
+     */
+    private List<Integer> parseIndices(String indexStr, TaskList taskList) throws DukeException {
+        TreeSet<Integer> indices = new TreeSet<>();
+        for (String token : indexStr.trim().split("\\s+")) {
+            if (token.contains("-")) {
+                String[] bounds = token.split("-", 2);
+                try {
+                    int lo = Integer.parseInt(bounds[0]) - 1;
+                    int hi = Integer.parseInt(bounds[1]) - 1;
+                    for (int i = lo; i <= hi; i++) {
+                        if (i < 0 || i >= taskList.size()) {
+                            throw new DukeException("OOPS!!! Task " + (i + 1) + " does not exist.");
+                        }
+                        indices.add(i);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new DukeException("OOPS!!! Invalid range: " + token);
+                }
+            } else {
+                indices.add(parseIndex(token, taskList));
+            }
+        }
+        return new ArrayList<>(indices);
     }
 
     /**
