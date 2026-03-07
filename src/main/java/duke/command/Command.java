@@ -204,6 +204,12 @@ public class Command {
         case STATS:
             ui.showMessage(getOutput(taskList, storage));
             break;
+        case SCHEDULE:
+            ui.showFoundTasks(taskList.getScheduleOn(
+                    duke.util.DateParser.parse(description) != null
+                    ? duke.util.DateParser.parse(description)
+                    : java.time.LocalDate.now()));
+            break;
         case HELP:
             ui.showHelp();
             break;
@@ -399,6 +405,20 @@ public class Command {
                     + "  Todos:     " + todos + "\n"
                     + "  Deadlines: " + deadlines + "\n"
                     + "  Events:    " + events;
+        }
+        case SCHEDULE: {
+            java.time.LocalDate date = duke.util.DateParser.parse(description);
+            if (date == null) {
+                return "Could not parse date: " + description;
+            }
+            ArrayList<Task> scheduled = taskList.getScheduleOn(date);
+            if (scheduled.isEmpty()) {
+                return "No tasks scheduled on " + date + ".";
+            }
+            String lines = IntStream.range(0, scheduled.size())
+                    .mapToObj(i -> (i + 1) + "." + scheduled.get(i))
+                    .collect(Collectors.joining("\n"));
+            return "Tasks on " + date + ":\n" + lines;
         }
         case BYE:
             return "Bye. Hope to see you again soon!";

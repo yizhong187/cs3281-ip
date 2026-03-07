@@ -132,12 +132,6 @@ public class TaskList {
     }
 
     /**
-     * Finds tasks whose description contains the given keyword (case-insensitive).
-     *
-     * @param keyword the search keyword
-     * @return list of matching tasks
-     */
-    /**
      * Finds tasks matching the given keyword or filter.
      * Supports:
      * - {@code #tagname} – filter by tag
@@ -180,5 +174,36 @@ public class TaskList {
         default:
             return false;
         }
+    }
+
+    /**
+     * Returns all tasks scheduled on the given date:
+     * Deadlines due on that date, and Events whose from-to range includes that date.
+     *
+     * @param date the date to check
+     * @return list of matching tasks
+     */
+    public ArrayList<Task> getScheduleOn(LocalDate date) {
+        ArrayList<Task> result = new ArrayList<>();
+        tasks.stream().filter(t -> isOnDate(t, date)).forEach(result::add);
+        return result;
+    }
+
+    private boolean isOnDate(Task task, LocalDate date) {
+        if (task instanceof Deadline) {
+            LocalDate d = ((Deadline) task).getByDate();
+            return d != null && d.equals(date);
+        }
+        if (task instanceof Event) {
+            LocalDate from = ((Event) task).getFromDate();
+            LocalDate to = ((Event) task).getToDate();
+            if (from != null && to != null) {
+                return !date.isBefore(from) && !date.isAfter(to);
+            }
+            if (from != null) {
+                return from.equals(date);
+            }
+        }
+        return false;
     }
 }

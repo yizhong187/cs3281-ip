@@ -127,6 +127,11 @@ public class Parser {
             return new Command(CommandType.STATS, null, null, null, null);
         case "undo":
             return new Command(CommandType.UNDO, null, null, null, null);
+        case "schedule":
+            if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                throw new DukeException("OOPS!!! Please provide a date for schedule.");
+            }
+            return new Command(CommandType.SCHEDULE, parts[1].trim(), null, null, null);
         case "help":
             return new Command(CommandType.HELP, null, null, null, null);
         default:

@@ -1,14 +1,22 @@
 package duke.task;
 
+import duke.util.DateParser;
+
+import java.time.LocalDate;
+
 /**
  * Represents a task that occurs over a time range (from/to).
+ * Parses from/to strings via Natty for structured date comparison.
  */
 public class Event extends Task {
     private String from;
     private String to;
+    private LocalDate fromDate;
+    private LocalDate toDate;
 
     /**
      * Constructs an Event with the given description, start time, and end time.
+     * The from/to strings are parsed via Natty for structured date support.
      *
      * @param description the event description
      * @param from        the start time/date string
@@ -18,6 +26,26 @@ public class Event extends Task {
         super(description);
         this.from = from;
         this.to = to;
+        this.fromDate = DateParser.parse(from);
+        this.toDate = DateParser.parse(to);
+    }
+
+    /**
+     * Returns the parsed start date, or null if unparseable.
+     *
+     * @return the from LocalDate
+     */
+    public LocalDate getFromDate() {
+        return fromDate;
+    }
+
+    /**
+     * Returns the parsed end date, or null if unparseable.
+     *
+     * @return the to LocalDate
+     */
+    public LocalDate getToDate() {
+        return toDate;
     }
 
     /**
@@ -45,6 +73,7 @@ public class Event extends Task {
      */
     public void setFrom(String from) {
         this.from = from;
+        this.fromDate = DateParser.parse(from);
     }
 
     /**
@@ -54,6 +83,7 @@ public class Event extends Task {
      */
     public void setTo(String to) {
         this.to = to;
+        this.toDate = DateParser.parse(to);
     }
 
     @Override
