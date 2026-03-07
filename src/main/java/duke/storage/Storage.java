@@ -194,6 +194,14 @@ public class Storage {
                 task = new Event(description, parts[3], parts[4]);
                 priorityIndex = 5;
             }
+            case "TE" -> {
+                if (parts.length < 4) {
+                    return null;
+                }
+                java.util.List<String> slots = java.util.Arrays.asList(parts[3].split("\\|\\|"));
+                task = new duke.task.TentativeEvent(description, slots);
+                priorityIndex = 4;
+            }
             default -> {
                 return null;
             }

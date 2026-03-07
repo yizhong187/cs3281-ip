@@ -91,6 +91,18 @@ public class Parser {
             eventCmd.setPriority(eventPriority);
             return eventCmd;
         }
+        case "tevent": {
+            if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                throw new DukeException(
+                        "OOPS!!! Usage: tevent <desc> /slot1 <time> /slot2 <time> ...");
+            }
+            return new Command(CommandType.TEVENT, parts[1].trim(), null, null, null);
+        }
+        case "confirm":
+            if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                throw new DukeException("OOPS!!! Usage: confirm <num> <slot_number>");
+            }
+            return new Command(CommandType.CONFIRM, parts[1].trim(), null, null, null);
         case "find":
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
                 throw new DukeException("OOPS!!! Please provide a keyword to search for.");

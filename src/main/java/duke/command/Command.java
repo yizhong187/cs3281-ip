@@ -93,6 +93,7 @@ public class Command {
         switch (type) {
         case MARK: case UNMARK: case DELETE: case TODO: case DEADLINE: case EVENT:
         case ARCHIVE: case TAG: case UNTAG: case UPDATE: case SORT: case SNOOZE:
+        case TEVENT: case CONFIRM:
             return true;
         default:
             return false;
@@ -160,6 +161,9 @@ public class Command {
             storage.save(taskList);
             break;
         }
+        case TEVENT: case CONFIRM:
+            ui.showMessage(getOutput(taskList, storage));
+            break;
         case FIND:
             ui.showFoundTasks(taskList.find(description));
             break;
@@ -286,6 +290,48 @@ public class Command {
             storage.save(taskList);
             delSb.append("\nNow you have ").append(taskList.size()).append(" tasks in the list.");
             return delSb.toString();
+        }
+        case TEVENT: {
+            java.util.List<String> slots = new java.util.ArrayList<>();
+            java.util.regex.Matcher sm = java.util.regex.Pattern
+                    .compile("/slot\\d+\\s+(.+?)(?=\\s+/slot|$)").matcher(description);
+            String teDesc = description.replaceAll("/slot\\d+\\s+[^/]+", "").trim();
+            while (sm.find()) {
+                slots.add(sm.group(1).trim());
+            }
+            if (slots.isEmpty()) {
+                throw new DukeException("OOPS!!! Provide at least one slot: /slot1 <time>");
+            }
+            duke.task.TentativeEvent te = new duke.task.TentativeEvent(teDesc, slots);
+            te.setPriority(priority);
+            taskList.add(te);
+            storage.save(taskList);
+            return "Got it. I've added a tentative event:\n  " + te
+                    + "\nNow you have " + taskList.size() + " tasks in the list.";
+        }
+        case CONFIRM: {
+            String[] cp = description.split("\\s+", 2);
+            int idx = parseIndex(cp[0], taskList);
+            Task task = taskList.get(idx);
+            if (!(task instanceof duke.task.TentativeEvent)) {
+                throw new DukeException("OOPS!!! Task " + (idx + 1) + " is not a tentative event.");
+            }
+            duke.task.TentativeEvent te = (duke.task.TentativeEvent) task;
+            int slotNum;
+            try {
+                slotNum = Integer.parseInt(cp.length > 1 ? cp[1].trim() : "") - 1;
+            } catch (NumberFormatException e) {
+                throw new DukeException("OOPS!!! Please provide a valid slot number.");
+            }
+            if (slotNum < 0 || slotNum >= te.getSlots().size()) {
+                throw new DukeException("OOPS!!! Slot " + (slotNum + 1) + " does not exist.");
+            }
+            String slot = te.getSlots().get(slotNum);
+            Event confirmed = new Event(te.getDescription(), slot, slot);
+            confirmed.setPriority(te.getPriority());
+            taskList.set(idx, confirmed);
+            storage.save(taskList);
+            return "Confirmed slot " + (slotNum + 1) + ":\n  " + confirmed;
         }
         case TODO: {
             boolean dup = taskList.hasDuplicate(description);
