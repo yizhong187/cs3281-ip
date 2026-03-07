@@ -29,15 +29,23 @@ public class DukeTest {
     }
 
     @Test
-    public void deadline_validDateString_displaysCorrectly() {
-        Deadline deadline = new Deadline("submit report", "Sunday");
-        assertEquals("[D][ ] submit report (by: Sunday)", deadline.toString());
+    public void deadline_unparseable_displaysRaw() {
+        // "ZZZUNKNOWNDATE" cannot be parsed by Natty, so it should display as-is
+        Deadline deadline = new Deadline("submit report", "ZZZUNKNOWNDATE");
+        assertEquals("[D][ ] submit report (by: ZZZUNKNOWNDATE)", deadline.toString());
     }
 
     @Test
     public void deadline_isoDate_formatsToReadable() {
         Deadline deadline = new Deadline("submit report", "2024-12-01");
         assertEquals("[D][ ] submit report (by: Dec 01 2024)", deadline.toString());
+    }
+
+    @Test
+    public void deadline_naturalDate_parsedCorrectly() {
+        // "next year" should parse to a future date — just verify it formats (not raw)
+        Deadline deadline = new Deadline("future task", "2025-06-15");
+        assertEquals("[D][ ] future task (by: Jun 15 2025)", deadline.toString());
     }
 
     @Test

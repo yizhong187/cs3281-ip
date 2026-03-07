@@ -1,31 +1,30 @@
 package duke.task;
 
+import duke.util.DateParser;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 /**
  * Represents a task with a deadline (due date).
+ * Supports natural language date strings via the Natty library (e.g. "next Monday", "Dec 25").
  */
 public class Deadline extends Task {
-    private String by;
-    private LocalDate byDate;
+    private final String by;
+    private final LocalDate byDate;
 
     /**
      * Constructs a Deadline with the given description and due date string.
-     * If {@code by} is a valid ISO date (yyyy-MM-dd), it is parsed for formatted display.
+     * The date string is parsed using Natty for natural language support,
+     * falling back gracefully if unparseable.
      *
      * @param description the task description
-     * @param by          the due date string
+     * @param by          the due date string (e.g. "tomorrow", "2024-12-01", "next Monday")
      */
     public Deadline(String description, String by) {
         super(description);
         this.by = by;
-        try {
-            this.byDate = LocalDate.parse(by);
-        } catch (DateTimeParseException e) {
-            this.byDate = null;
-        }
+        this.byDate = DateParser.parse(by);
     }
 
     /**
@@ -38,7 +37,7 @@ public class Deadline extends Task {
     }
 
     /**
-     * Returns the raw by-date string.
+     * Returns the raw by-date string as entered by the user.
      *
      * @return the by string
      */
