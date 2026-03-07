@@ -226,6 +226,16 @@ public class Storage {
                 task.setRecurrence(parts[recurIndex].trim());
             }
 
+            // Load afterIndex if present (field after recurrence)
+            int afterIdx = recurIndex + 1;
+            if (parts.length > afterIdx && !parts[afterIdx].trim().isEmpty()) {
+                try {
+                    task.setAfterIndex(Integer.parseInt(parts[afterIdx].trim()));
+                } catch (NumberFormatException e) {
+                    // ignore, defaults to -1
+                }
+            }
+
             if (isDone) {
                 task.markDone();
             }

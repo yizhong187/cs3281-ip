@@ -28,6 +28,7 @@ public class Command {
     private String to;
     private Priority priority;
     private String recurrence;
+    private int afterIndex;
 
     /**
      * Constructs a Command with the given type and parameters.
@@ -46,6 +47,7 @@ public class Command {
         this.to = to;
         this.priority = Priority.MEDIUM;
         this.recurrence = null;
+        this.afterIndex = -1;
     }
 
     /**
@@ -64,6 +66,15 @@ public class Command {
      */
     public void setRecurrence(String recurrence) {
         this.recurrence = recurrence;
+    }
+
+    /**
+     * Sets the 1-based index of the task that must be done before this task.
+     *
+     * @param afterIndex the 1-based index, or -1 if no dependency
+     */
+    public void setAfterIndex(int afterIndex) {
+        this.afterIndex = afterIndex;
     }
 
     /**
@@ -262,8 +273,15 @@ public class Command {
             List<Integer> markIndices = parseIndices(description, taskList);
             StringBuilder markSb = new StringBuilder("Nice! I've marked these tasks as done:");
             for (int index : markIndices) {
-                taskList.get(index).markDone();
-                markSb.append("\n  ").append(taskList.get(index));
+                Task taskToMark = taskList.get(index);
+                int dep = taskToMark.getAfterIndex();
+                if (dep > 0 && dep <= taskList.size() && !taskList.get(dep - 1).isDone()) {
+                    markSb.append("\n  Warning: Task ").append(dep)
+                            .append(" (\"").append(taskList.get(dep - 1).getDescription())
+                            .append("\") should be done first!");
+                }
+                taskToMark.markDone();
+                markSb.append("\n  ").append(taskToMark);
                 spawnNextRecurrence(taskList, index);
             }
             storage.save(taskList);
@@ -439,7 +457,7 @@ public class Command {
         case HELP:
             return "Available commands:\n"
                     + "  list\n"
-                    + "  todo <desc> [/priority high|medium|low]\n"
+                    + "  todo <desc> [/priority high|medium|low] [/after INDEX]\n"
                     + "  deadline <desc> /by <date> [/priority high|medium|low]\n"
                     + "  event <desc> /from <time> /to <time> [/priority high|medium|low]\n"
                     + "  mark <num>\n"
@@ -638,6 +656,9 @@ public class Command {
         task.setPriority(priority);
         if (recurrence != null) {
             task.setRecurrence(recurrence);
+        }
+        if (afterIndex >= 0) {
+            task.setAfterIndex(afterIndex);
         }
         return task;
     }

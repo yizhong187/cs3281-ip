@@ -13,6 +13,7 @@ public abstract class Task {
     protected Priority priority;
     protected Set<String> tags;
     protected String recurrence;
+    protected int afterIndex;
 
     /**
      * Constructs a Task with the given description, initially not done and MEDIUM priority.
@@ -25,6 +26,7 @@ public abstract class Task {
         this.priority = Priority.MEDIUM;
         this.tags = new LinkedHashSet<>();
         this.recurrence = null;
+        this.afterIndex = -1;
     }
 
     /**
@@ -52,6 +54,33 @@ public abstract class Task {
      */
     public String getRecurrenceFileString() {
         return recurrence != null ? recurrence : "";
+    }
+
+    /**
+     * Returns the 1-based index of the task that must be done before this one, or -1 if none.
+     *
+     * @return the after-index, or -1 if not set
+     */
+    public int getAfterIndex() {
+        return afterIndex;
+    }
+
+    /**
+     * Sets the 1-based index of the task that must be completed before this one.
+     *
+     * @param afterIndex the 1-based task index, or -1 to clear the dependency
+     */
+    public void setAfterIndex(int afterIndex) {
+        this.afterIndex = afterIndex;
+    }
+
+    /**
+     * Returns the after-index as a string for file storage (empty string if -1).
+     *
+     * @return the after-index file string
+     */
+    public String getAfterIndexFileString() {
+        return afterIndex >= 0 ? String.valueOf(afterIndex) : "";
     }
 
     /** Marks this task as done. */

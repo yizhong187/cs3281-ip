@@ -45,13 +45,15 @@ public class Parser {
             }
             Priority todoPriority = extractPriority(parts[1]);
             String todoRecurrence = extractRecurrence(parts[1]);
-            String todoDesc = stripPriority(stripRecurrence(parts[1])).trim();
+            int todoAfter = extractAfterIndex(parts[1]);
+            String todoDesc = stripPriority(stripRecurrence(stripAfterIndex(parts[1]))).trim();
             if (todoDesc.isEmpty()) {
                 throw new DukeException("OOPS!!! The description of a todo cannot be empty.");
             }
             Command todoCmd = new Command(CommandType.TODO, todoDesc, null, null, null);
             todoCmd.setPriority(todoPriority);
             todoCmd.setRecurrence(todoRecurrence);
+            todoCmd.setAfterIndex(todoAfter);
             return todoCmd;
         }
         case "deadline": {
@@ -230,5 +232,35 @@ public class Parser {
      */
     private static String stripRecurrence(String args) {
         return args.replaceAll("/every\\s+\\S+", "").trim();
+    }
+
+    /**
+     * Extracts the after-index from the args string ({@code /after INDEX}).
+     * Returns -1 if not present.
+     *
+     * @param args the argument string
+     * @return the 1-based after-index, or -1
+     */
+    private static int extractAfterIndex(String args) {
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("/after\\s+(\\d+)").matcher(args);
+        if (m.find()) {
+            try {
+                return Integer.parseInt(m.group(1));
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Strips the {@code /after INDEX} token from the args string.
+     *
+     * @param args the argument string
+     * @return the args string with the after token removed
+     */
+    private static String stripAfterIndex(String args) {
+        return args.replaceAll("/after\\s+\\d+", "").trim();
     }
 }

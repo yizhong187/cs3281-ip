@@ -41,6 +41,6 @@ public class TentativeEvent extends Task {
         String slotsStr = String.join("||", slots);
         return "TE | " + (isDone ? "1" : "0") + " | " + description + " | " + slotsStr
                 + " | " + priority.name() + " | " + getTagsFileString()
-                + " | " + getRecurrenceFileString();
+                + " | " + getRecurrenceFileString() + " | " + getAfterIndexFileString();
     }
 }
