@@ -27,6 +27,7 @@ public class Command {
     private String from;
     private String to;
     private Priority priority;
+    private String recurrence;
 
     /**
      * Constructs a Command with the given type and parameters.
@@ -44,6 +45,7 @@ public class Command {
         this.from = from;
         this.to = to;
         this.priority = Priority.MEDIUM;
+        this.recurrence = null;
     }
 
     /**
@@ -53,6 +55,15 @@ public class Command {
      */
     public void setPriority(Priority priority) {
         this.priority = priority;
+    }
+
+    /**
+     * Sets the recurrence interval for this command's task.
+     *
+     * @param recurrence the interval string ("daily", "weekly", "monthly"), or null
+     */
+    public void setRecurrence(String recurrence) {
+        this.recurrence = recurrence;
     }
 
     /**
@@ -249,6 +260,7 @@ public class Command {
             for (int index : markIndices) {
                 taskList.get(index).markDone();
                 markSb.append("\n  ").append(taskList.get(index));
+                spawnNextRecurrence(taskList, index);
             }
             storage.save(taskList);
             return markSb.toString();
@@ -578,6 +590,57 @@ public class Command {
             break;
         }
         task.setPriority(priority);
+        if (recurrence != null) {
+            task.setRecurrence(recurrence);
+        }
         return task;
+    }
+
+    /**
+     * If the task at the given index is recurring, adds a new undone copy to the list.
+     *
+     * @param taskList the task list
+     * @param index    the index of the just-marked task
+     */
+    private void spawnNextRecurrence(TaskList taskList, int index) {
+        Task task = taskList.get(index);
+        if (task.getRecurrence() == null) {
+            return;
+        }
+        Task next;
+        if (task instanceof Deadline) {
+            java.time.LocalDate nextDate = advanceDate(
+                    ((Deadline) task).getByDate(), task.getRecurrence());
+            String byStr = nextDate != null
+                    ? nextDate.toString() : ((Deadline) task).getBy();
+            next = new Deadline(task.getDescription(), byStr);
+        } else if (task instanceof Event) {
+            next = new Event(task.getDescription(),
+                    ((Event) task).getFrom(), ((Event) task).getTo());
+        } else {
+            next = new Todo(task.getDescription());
+        }
+        next.setPriority(task.getPriority());
+        next.setRecurrence(task.getRecurrence());
+        for (String tag : task.getTags()) {
+            next.addTag(tag);
+        }
+        taskList.add(next);
+    }
+
+    private java.time.LocalDate advanceDate(java.time.LocalDate base, String recurrence) {
+        if (base == null) {
+            return null;
+        }
+        switch (recurrence) {
+        case "daily":
+            return base.plusDays(1);
+        case "weekly":
+            return base.plusWeeks(1);
+        case "monthly":
+            return base.plusMonths(1);
+        default:
+            return base.plusWeeks(1);
+        }
     }
 }

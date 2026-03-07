@@ -212,6 +212,12 @@ public class Storage {
                 }
             }
 
+            // Load recurrence if present (field after tags)
+            int recurIndex = tagsIndex + 1;
+            if (parts.length > recurIndex && !parts[recurIndex].trim().isEmpty()) {
+                task.setRecurrence(parts[recurIndex].trim());
+            }
+
             if (isDone) {
                 task.markDone();
             }

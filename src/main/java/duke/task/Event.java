@@ -94,6 +94,7 @@ public class Event extends Task {
     @Override
     public String toFileString() {
         return "E | " + (isDone ? "1" : "0") + " | " + description
-                + " | " + from + " | " + to + " | " + priority.name() + " | " + getTagsFileString();
+                + " | " + from + " | " + to + " | " + priority.name() + " | " + getTagsFileString()
+                + " | " + getRecurrenceFileString();
     }
 }

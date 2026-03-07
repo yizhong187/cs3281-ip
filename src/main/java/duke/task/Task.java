@@ -12,6 +12,7 @@ public abstract class Task {
     protected boolean isDone;
     protected Priority priority;
     protected Set<String> tags;
+    protected String recurrence;
 
     /**
      * Constructs a Task with the given description, initially not done and MEDIUM priority.
@@ -23,6 +24,34 @@ public abstract class Task {
         this.isDone = false;
         this.priority = Priority.MEDIUM;
         this.tags = new LinkedHashSet<>();
+        this.recurrence = null;
+    }
+
+    /**
+     * Returns the recurrence interval of this task ("daily", "weekly", "monthly"), or null.
+     *
+     * @return the recurrence string, or null if not recurring
+     */
+    public String getRecurrence() {
+        return recurrence;
+    }
+
+    /**
+     * Sets the recurrence interval for this task.
+     *
+     * @param recurrence the interval ("daily", "weekly", "monthly"), or null to clear
+     */
+    public void setRecurrence(String recurrence) {
+        this.recurrence = recurrence;
+    }
+
+    /**
+     * Returns the recurrence string for file storage (empty string if not recurring).
+     *
+     * @return the recurrence file string
+     */
+    public String getRecurrenceFileString() {
+        return recurrence != null ? recurrence : "";
     }
 
     /** Marks this task as done. */

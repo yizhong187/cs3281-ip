@@ -44,12 +44,14 @@ public class Parser {
                 throw new DukeException("OOPS!!! The description of a todo cannot be empty.");
             }
             Priority todoPriority = extractPriority(parts[1]);
-            String todoDesc = stripPriority(parts[1]).trim();
+            String todoRecurrence = extractRecurrence(parts[1]);
+            String todoDesc = stripPriority(stripRecurrence(parts[1])).trim();
             if (todoDesc.isEmpty()) {
                 throw new DukeException("OOPS!!! The description of a todo cannot be empty.");
             }
             Command todoCmd = new Command(CommandType.TODO, todoDesc, null, null, null);
             todoCmd.setPriority(todoPriority);
+            todoCmd.setRecurrence(todoRecurrence);
             return todoCmd;
         }
         case "deadline": {
@@ -193,5 +195,28 @@ public class Parser {
      */
     private static String stripPriority(String args) {
         return args.replaceAll("/priority\\s+\\S+", "").trim();
+    }
+
+    /**
+     * Extracts the recurrence interval from the args string ({@code /every VALUE}).
+     * Returns null if not present.
+     *
+     * @param args the argument string
+     * @return the recurrence string, or null
+     */
+    private static String extractRecurrence(String args) {
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("/every\\s+(\\S+)").matcher(args);
+        return m.find() ? m.group(1).toLowerCase() : null;
+    }
+
+    /**
+     * Strips the {@code /every VALUE} token from the args string.
+     *
+     * @param args the argument string
+     * @return the args string with the recurrence token removed
+     */
+    private static String stripRecurrence(String args) {
+        return args.replaceAll("/every\\s+\\S+", "").trim();
     }
 }
