@@ -15,7 +15,7 @@ import java.util.Deque;
  * Coordinates the UI, storage, and task list components.
  */
 public class Duke {
-    private static final String FILE_PATH = "./data/duke.txt";
+    private static final String DEFAULT_FILE_PATH = "./data/duke.txt";
 
     private Storage storage;
     private TaskList taskList;
@@ -26,9 +26,19 @@ public class Duke {
      * Constructs a Duke instance, loading existing tasks from storage.
      * Falls back to an empty task list if loading fails.
      */
+    /** Constructs Duke using the default data file path. */
     public Duke() {
+        this(DEFAULT_FILE_PATH);
+    }
+
+    /**
+     * Constructs Duke using the given data file path.
+     *
+     * @param filePath path to the data file
+     */
+    public Duke(String filePath) {
         ui = new Ui();
-        storage = new Storage(FILE_PATH);
+        storage = new Storage(filePath);
         undoStack = new ArrayDeque<>();
         try {
             taskList = new TaskList(storage.load());
@@ -102,10 +112,12 @@ public class Duke {
 
     /**
      * Application entry point for CLI mode.
+     * Accepts an optional data file path as the first argument.
      *
-     * @param args command-line arguments (unused)
+     * @param args command-line arguments; args[0] overrides the default data file path
      */
     public static void main(String[] args) {
-        new Duke().run();
+        String filePath = args.length > 0 ? args[0] : DEFAULT_FILE_PATH;
+        new Duke(filePath).run();
     }
 }
