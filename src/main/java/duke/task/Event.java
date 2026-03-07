@@ -38,6 +38,24 @@ public class Event extends Task {
         return to;
     }
 
+    /**
+     * Updates the start time string.
+     *
+     * @param from the new start time
+     */
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    /**
+     * Updates the end time string.
+     *
+     * @param to the new end time
+     */
+    public void setTo(String to) {
+        this.to = to;
+    }
+
     @Override
     public String toString() {
         return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";

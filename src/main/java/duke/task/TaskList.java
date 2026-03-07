@@ -57,6 +57,18 @@ public class TaskList {
     }
 
     /**
+     * Replaces the task at the given index.
+     *
+     * @param index the zero-based index
+     * @param task  the replacement task
+     */
+    public void set(int index, Task task) {
+        assert index >= 0 && index < tasks.size() : "Set index out of range: " + index;
+        assert task != null : "Cannot set a null task";
+        tasks.set(index, task);
+    }
+
+    /**
      * Returns the number of tasks.
      *
      * @return the list size

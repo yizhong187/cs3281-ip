@@ -130,6 +130,15 @@ public class Command {
         case FIND:
             ui.showFoundTasks(taskList.find(description));
             break;
+        case UPDATE: {
+            String[] updateParts = description.split("\\s+", 2);
+            int index = parseIndex(updateParts[0], taskList);
+            String args = updateParts.length > 1 ? updateParts[1] : "";
+            applyUpdates(taskList, index, args);
+            storage.save(taskList);
+            ui.showTaskMarked(taskList.get(index));
+            break;
+        }
         case SORT:
             taskList.sortBy(description);
             storage.save(taskList);
@@ -215,6 +224,14 @@ public class Command {
                     .collect(Collectors.joining("\n"));
             return "Here are the matching tasks in your list:\n" + matchLines;
         }
+        case UPDATE: {
+            String[] updateParts = description.split("\\s+", 2);
+            int index = parseIndex(updateParts[0], taskList);
+            String args = updateParts.length > 1 ? updateParts[1] : "";
+            applyUpdates(taskList, index, args);
+            storage.save(taskList);
+            return "Got it. I've updated this task:\n  " + taskList.get(index);
+        }
         case SORT: {
             taskList.sortBy(description);
             storage.save(taskList);
@@ -262,6 +279,54 @@ public class Command {
             return index;
         } catch (NumberFormatException e) {
             throw new DukeException("OOPS!!! Please provide a valid task number.");
+        }
+    }
+
+    /**
+     * Applies field updates parsed from the args string to the task at the given index.
+     * Supported flags: /desc, /by (Deadline only), /from (Event only), /to (Event only), /priority.
+     * For /by updates on a Deadline, replaces the task with a new Deadline instance.
+     *
+     * @param taskList the current task list
+     * @param index    the zero-based index of the task to update
+     * @param args     the update arguments string (e.g. "/desc New name /priority high")
+     */
+    private void applyUpdates(TaskList taskList, int index, String args) {
+        Task task = taskList.get(index);
+        java.util.regex.Matcher descMatcher = java.util.regex.Pattern
+                .compile("/desc\\s+(.+?)(?=\\s+/|$)").matcher(args);
+        if (descMatcher.find()) {
+            task.setDescription(descMatcher.group(1).trim());
+        }
+        java.util.regex.Matcher priorityMatcher = java.util.regex.Pattern
+                .compile("/priority\\s+(\\S+)").matcher(args);
+        if (priorityMatcher.find()) {
+            task.setPriority(duke.task.Priority.fromString(priorityMatcher.group(1)));
+        }
+        if (task instanceof Deadline) {
+            java.util.regex.Matcher byMatcher = java.util.regex.Pattern
+                    .compile("/by\\s+(.+?)(?=\\s+/|$)").matcher(args);
+            if (byMatcher.find()) {
+                Deadline old = (Deadline) task;
+                Deadline updated = new Deadline(task.getDescription(), byMatcher.group(1).trim());
+                updated.setPriority(old.getPriority());
+                if (old.isDone()) {
+                    updated.markDone();
+                }
+                taskList.set(index, updated);
+            }
+        } else if (task instanceof Event) {
+            Event event = (Event) task;
+            java.util.regex.Matcher fromMatcher = java.util.regex.Pattern
+                    .compile("/from\\s+(.+?)(?=\\s+/|$)").matcher(args);
+            if (fromMatcher.find()) {
+                event.setFrom(fromMatcher.group(1).trim());
+            }
+            java.util.regex.Matcher toMatcher = java.util.regex.Pattern
+                    .compile("/to\\s+(.+?)(?=\\s+/|$)").matcher(args);
+            if (toMatcher.find()) {
+                event.setTo(toMatcher.group(1).trim());
+            }
         }
     }
 

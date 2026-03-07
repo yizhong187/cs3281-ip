@@ -67,6 +67,15 @@ public abstract class Task {
     }
 
     /**
+     * Updates the description of this task.
+     *
+     * @param description the new description
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
      * Returns the status icon for display.
      *
      * @return "X" if done, " " otherwise
