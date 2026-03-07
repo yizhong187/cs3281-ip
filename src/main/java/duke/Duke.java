@@ -61,6 +61,9 @@ public class Duke {
      * @return the response message
      */
     public String getResponse(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            return "Please enter a command. Type 'help' to see available commands.";
+        }
         try {
             Command command = Parser.parse(input);
             return command.getOutput(taskList, storage);

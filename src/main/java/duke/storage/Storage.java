@@ -46,16 +46,32 @@ public class Storage {
             return tasks;
         }
 
+        if (!file.canRead()) {
+            throw new DukeException("Cannot read data file: " + filePath
+                    + ". Check file permissions.");
+        }
+
+        int skipped = 0;
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
                 Task task = parseTask(line);
                 if (task != null) {
                     tasks.add(task);
+                } else {
+                    skipped++;
                 }
             }
         } catch (IOException e) {
             throw new DukeException("Error loading tasks: " + e.getMessage());
+        }
+
+        if (skipped > 0) {
+            System.out.println("     Warning: Skipped " + skipped
+                    + " malformed line(s) in data file.");
         }
 
         return tasks;
