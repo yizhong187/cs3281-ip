@@ -216,25 +216,40 @@ public class Command {
                     + "\nNow you have " + taskList.size() + " tasks in the list.";
         }
         case TODO: {
+            boolean dup = taskList.hasDuplicate(description);
             Task task = buildTask();
             taskList.add(task);
             storage.save(taskList);
-            return "Got it. I've added this task:\n  " + task
+            String msg = "Got it. I've added this task:\n  " + task
                     + "\nNow you have " + taskList.size() + " tasks in the list.";
+            if (dup) {
+                msg = "Warning: A task with this description already exists!\n" + msg;
+            }
+            return msg;
         }
         case DEADLINE: {
+            boolean dup = taskList.hasDuplicate(description);
             Task task = buildTask();
             taskList.add(task);
             storage.save(taskList);
-            return "Got it. I've added this task:\n  " + task
+            String msg = "Got it. I've added this task:\n  " + task
                     + "\nNow you have " + taskList.size() + " tasks in the list.";
+            if (dup) {
+                msg = "Warning: A task with this description already exists!\n" + msg;
+            }
+            return msg;
         }
         case EVENT: {
+            boolean dup = taskList.hasDuplicate(description);
             Task task = buildTask();
             taskList.add(task);
             storage.save(taskList);
-            return "Got it. I've added this task:\n  " + task
+            String msg = "Got it. I've added this task:\n  " + task
                     + "\nNow you have " + taskList.size() + " tasks in the list.";
+            if (dup) {
+                msg = "Warning: A task with this description already exists!\n" + msg;
+            }
+            return msg;
         }
         case FIND: {
             ArrayList<Task> results = taskList.find(description);

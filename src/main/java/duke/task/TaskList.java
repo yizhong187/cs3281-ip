@@ -25,6 +25,17 @@ public class TaskList {
     }
 
     /**
+     * Returns true if any existing task has the same description (case-insensitive).
+     *
+     * @param description the description to check
+     * @return true if a duplicate exists
+     */
+    public boolean hasDuplicate(String description) {
+        String lower = description.toLowerCase();
+        return tasks.stream().anyMatch(t -> t.getDescription().toLowerCase().equals(lower));
+    }
+
+    /**
      * Adds a task to the list.
      *
      * @param task the task to add
