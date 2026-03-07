@@ -104,7 +104,7 @@ public class Command {
         switch (type) {
         case MARK: case UNMARK: case DELETE: case TODO: case DEADLINE: case EVENT:
         case ARCHIVE: case TAG: case UNTAG: case UPDATE: case SORT: case SNOOZE:
-        case TEVENT: case CONFIRM:
+        case TEVENT: case CONFIRM: case WITHIN:
             return true;
         default:
             return false;
@@ -172,7 +172,7 @@ public class Command {
             storage.save(taskList);
             break;
         }
-        case TEVENT: case CONFIRM:
+        case WITHIN: case TEVENT: case CONFIRM:
             ui.showMessage(getOutput(taskList, storage));
             break;
         case FIND:
@@ -308,6 +308,19 @@ public class Command {
             storage.save(taskList);
             delSb.append("\nNow you have ").append(taskList.size()).append(" tasks in the list.");
             return delSb.toString();
+        }
+        case WITHIN: {
+            boolean dup = taskList.hasDuplicate(description);
+            Task task = new duke.task.WithinPeriodTask(description, from, to);
+            task.setPriority(priority);
+            taskList.add(task);
+            storage.save(taskList);
+            String msg = "Got it. I've added this task:\n  " + task
+                    + "\nNow you have " + taskList.size() + " tasks in the list.";
+            if (dup) {
+                msg = "Warning: A task with this description already exists!\n" + msg;
+            }
+            return msg;
         }
         case TEVENT: {
             java.util.List<String> slots = new java.util.ArrayList<>();

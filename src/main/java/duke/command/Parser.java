@@ -93,6 +93,26 @@ public class Parser {
             eventCmd.setPriority(eventPriority);
             return eventCmd;
         }
+        case "within": {
+            if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                throw new DukeException(
+                        "OOPS!!! Usage: within <desc> /from <date> /to <date>");
+            }
+            String[] withinParts = parts[1].split(" /from ", 2);
+            if (withinParts.length < 2) {
+                throw new DukeException(
+                        "OOPS!!! A within task needs /from and /to. "
+                        + "Usage: within <desc> /from <date> /to <date>");
+            }
+            String[] withinTimes = withinParts[1].split(" /to ", 2);
+            if (withinTimes.length < 2) {
+                throw new DukeException(
+                        "OOPS!!! A within task needs /to. "
+                        + "Usage: within <desc> /from <date> /to <date>");
+            }
+            return new Command(CommandType.WITHIN, withinParts[0].trim(),
+                    null, withinTimes[0].trim(), withinTimes[1].trim());
+        }
         case "tevent": {
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
                 throw new DukeException(
