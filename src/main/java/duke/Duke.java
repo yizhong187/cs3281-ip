@@ -1,10 +1,14 @@
 package duke;
 
 import duke.command.Command;
+import duke.command.CommandType;
 import duke.command.Parser;
 import duke.storage.Storage;
 import duke.task.TaskList;
 import duke.ui.Ui;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * The main entry point for the Aria task manager application.
@@ -16,6 +20,7 @@ public class Duke {
     private Storage storage;
     private TaskList taskList;
     private Ui ui;
+    private Deque<String> undoStack;
 
     /**
      * Constructs a Duke instance, loading existing tasks from storage.
@@ -24,6 +29,7 @@ public class Duke {
     public Duke() {
         ui = new Ui();
         storage = new Storage(FILE_PATH);
+        undoStack = new ArrayDeque<>();
         try {
             taskList = new TaskList(storage.load());
         } catch (DukeException e) {
@@ -44,9 +50,21 @@ public class Duke {
             String input = ui.readCommand();
             try {
                 Command command = Parser.parse(input);
-                command.execute(taskList, ui, storage);
-                if (command.isExit()) {
-                    break;
+                if (command.isMutating()) {
+                    undoStack.push(storage.getSnapshot());
+                }
+                if (command.getType() == CommandType.UNDO) {
+                    if (undoStack.isEmpty()) {
+                        ui.showError("Nothing to undo.");
+                    } else {
+                        taskList = storage.restoreFromSnapshot(undoStack.pop());
+                        ui.showMessage("Last action undone.");
+                    }
+                } else {
+                    command.execute(taskList, ui, storage);
+                    if (command.isExit()) {
+                        break;
+                    }
                 }
             } catch (DukeException e) {
                 ui.showError(e.getMessage());
@@ -66,6 +84,16 @@ public class Duke {
         }
         try {
             Command command = Parser.parse(input);
+            if (command.isMutating()) {
+                undoStack.push(storage.getSnapshot());
+            }
+            if (command.getType() == CommandType.UNDO) {
+                if (undoStack.isEmpty()) {
+                    return "Nothing to undo.";
+                }
+                taskList = storage.restoreFromSnapshot(undoStack.pop());
+                return "Last action undone.";
+            }
             return command.getOutput(taskList, storage);
         } catch (DukeException e) {
             return e.getMessage();

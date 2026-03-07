@@ -74,6 +74,21 @@ public class Command {
     }
 
     /**
+     * Returns true if this command mutates the task list (and should be undoable).
+     *
+     * @return true if mutating
+     */
+    public boolean isMutating() {
+        switch (type) {
+        case MARK: case UNMARK: case DELETE: case TODO: case DEADLINE: case EVENT:
+        case ARCHIVE: case TAG: case UNTAG: case UPDATE: case SORT:
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    /**
      * Executes this command in CLI mode, producing output via {@link Ui}
      * and persisting changes via {@link Storage}.
      *

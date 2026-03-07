@@ -5,5 +5,5 @@ package duke.command;
  */
 public enum CommandType {
     BYE, LIST, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, FIND, HELP, SORT, UPDATE,
-    TAG, UNTAG, ARCHIVE, ARCHIVES, STATS
+    TAG, UNTAG, ARCHIVE, ARCHIVES, STATS, UNDO
 }

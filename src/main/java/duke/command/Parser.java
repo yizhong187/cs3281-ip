@@ -125,6 +125,8 @@ public class Parser {
             return new Command(CommandType.SORT, parts[1].trim(), null, null, null);
         case "stats":
             return new Command(CommandType.STATS, null, null, null, null);
+        case "undo":
+            return new Command(CommandType.UNDO, null, null, null, null);
         case "help":
             return new Command(CommandType.HELP, null, null, null, null);
         default:

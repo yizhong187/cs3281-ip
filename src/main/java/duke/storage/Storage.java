@@ -68,6 +68,49 @@ public class Storage {
     }
 
     /**
+     * Captures the current file contents as a snapshot string for undo support.
+     *
+     * @return the file contents, or empty string if file does not exist
+     */
+    public String getSnapshot() {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            return "";
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Restores the task list from a previously captured snapshot string.
+     *
+     * @param snapshot the snapshot string (as returned by {@link #getSnapshot()})
+     * @return the restored TaskList
+     * @throws DukeException if an I/O error occurs
+     */
+    public TaskList restoreFromSnapshot(String snapshot) throws DukeException {
+        File file = new File(filePath);
+        File dir = file.getParentFile();
+        if (dir != null && !dir.exists()) {
+            dir.mkdirs();
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(snapshot);
+        } catch (IOException e) {
+            throw new DukeException("Error restoring snapshot: " + e.getMessage());
+        }
+        return new duke.task.TaskList(load());
+    }
+
+    /**
      * Loads tasks from the data file.
      *
      * @return list of loaded tasks
