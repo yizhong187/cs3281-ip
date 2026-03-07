@@ -17,7 +17,7 @@ public class Parser {
     public static Command parse(String input) throws DukeException {
         String trimmed = input.trim();
         String[] parts = trimmed.split(" ", 2);
-        String commandWord = parts[0].toLowerCase();
+        String commandWord = resolveAlias(parts[0].toLowerCase());
 
         switch (commandWord) {
         case "bye":
@@ -133,6 +133,32 @@ public class Parser {
             throw new DukeException(
                     "OOPS!!! I'm sorry, but I don't know what that means :-( "
                     + "Type 'help' to see a list of available commands.");
+        }
+    }
+
+    /**
+     * Resolves command aliases to their canonical names.
+     * Aliases: t→todo, d→deadline, e→event, ls→list, rm→delete, q→bye.
+     *
+     * @param word the command word (already lower-cased)
+     * @return the canonical command word
+     */
+    private static String resolveAlias(String word) {
+        switch (word) {
+        case "t":
+            return "todo";
+        case "d":
+            return "deadline";
+        case "e":
+            return "event";
+        case "ls":
+            return "list";
+        case "rm":
+            return "delete";
+        case "q": case "exit":
+            return "bye";
+        default:
+            return word;
         }
     }
 
