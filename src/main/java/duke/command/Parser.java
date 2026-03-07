@@ -127,6 +127,11 @@ public class Parser {
             return new Command(CommandType.STATS, null, null, null, null);
         case "undo":
             return new Command(CommandType.UNDO, null, null, null, null);
+        case "snooze":
+            if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                throw new DukeException("OOPS!!! Usage: snooze <num> <newdate>");
+            }
+            return new Command(CommandType.SNOOZE, parts[1].trim(), null, null, null);
         case "schedule":
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
                 throw new DukeException("OOPS!!! Please provide a date for schedule.");

@@ -81,7 +81,7 @@ public class Command {
     public boolean isMutating() {
         switch (type) {
         case MARK: case UNMARK: case DELETE: case TODO: case DEADLINE: case EVENT:
-        case ARCHIVE: case TAG: case UNTAG: case UPDATE: case SORT:
+        case ARCHIVE: case TAG: case UNTAG: case UPDATE: case SORT: case SNOOZE:
             return true;
         default:
             return false;
@@ -202,6 +202,9 @@ public class Command {
             ui.showTaskList(taskList);
             break;
         case STATS:
+            ui.showMessage(getOutput(taskList, storage));
+            break;
+        case SNOOZE:
             ui.showMessage(getOutput(taskList, storage));
             break;
         case SCHEDULE:
@@ -405,6 +408,33 @@ public class Command {
                     + "  Todos:     " + todos + "\n"
                     + "  Deadlines: " + deadlines + "\n"
                     + "  Events:    " + events;
+        }
+        case SNOOZE: {
+            String[] snoozeParts = description.split("\\s+", 2);
+            int index = parseIndex(snoozeParts[0], taskList);
+            if (snoozeParts.length < 2) {
+                throw new DukeException("OOPS!!! Usage: snooze <num> <newdate>");
+            }
+            String newDate = snoozeParts[1];
+            Task task = taskList.get(index);
+            if (task instanceof Deadline) {
+                Deadline old = (Deadline) task;
+                Deadline updated = new Deadline(old.getDescription(), newDate);
+                updated.setPriority(old.getPriority());
+                if (old.isDone()) {
+                    updated.markDone();
+                }
+                for (String tag : old.getTags()) {
+                    updated.addTag(tag);
+                }
+                taskList.set(index, updated);
+            } else if (task instanceof Event) {
+                ((Event) task).setFrom(newDate);
+            } else {
+                throw new DukeException("OOPS!!! Only deadlines and events can be snoozed.");
+            }
+            storage.save(taskList);
+            return "Snoozed task:\n  " + taskList.get(index);
         }
         case SCHEDULE: {
             java.time.LocalDate date = duke.util.DateParser.parse(description);
