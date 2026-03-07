@@ -190,6 +190,33 @@ public class TaskList {
     }
 
     /**
+     * Returns undone tasks with a deadline within the next {@code days} days (inclusive).
+     *
+     * @param days number of days ahead to look
+     * @return list of upcoming tasks
+     */
+    public ArrayList<Task> getUpcomingReminders(int days) {
+        LocalDate today = LocalDate.now();
+        LocalDate cutoff = today.plusDays(days);
+        ArrayList<Task> reminders = new ArrayList<>();
+        for (Task t : tasks) {
+            if (t.isDone()) {
+                continue;
+            }
+            LocalDate due = null;
+            if (t instanceof Deadline) {
+                due = ((Deadline) t).getByDate();
+            } else if (t instanceof Event) {
+                due = ((Event) t).getFromDate();
+            }
+            if (due != null && !due.isBefore(today) && !due.isAfter(cutoff)) {
+                reminders.add(t);
+            }
+        }
+        return reminders;
+    }
+
+    /**
      * Finds existing events whose date range overlaps with the given event's date range.
      * Excludes the task at {@code excludeIndex} (use -1 to check all tasks).
      *

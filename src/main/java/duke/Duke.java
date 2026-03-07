@@ -4,10 +4,12 @@ import duke.command.Command;
 import duke.command.CommandType;
 import duke.command.Parser;
 import duke.storage.Storage;
+import duke.task.Task;
 import duke.task.TaskList;
 import duke.ui.Ui;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 
 /**
@@ -52,10 +54,32 @@ public class Duke {
     }
 
     /**
+     * Builds a reminder message for tasks due within the next 3 days.
+     * Returns an empty string if there are no upcoming tasks.
+     *
+     * @return the reminder string, or empty
+     */
+    public String buildReminderMessage() {
+        ArrayList<Task> upcoming = taskList.getUpcomingReminders(3);
+        if (upcoming.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder("Reminders — tasks due within 3 days:");
+        for (int i = 0; i < upcoming.size(); i++) {
+            sb.append("\n  ").append(i + 1).append(".").append(upcoming.get(i));
+        }
+        return sb.toString();
+    }
+
+    /**
      * Runs the CLI event loop, reading and executing commands until exit.
      */
     public void run() {
         ui.showWelcome();
+        String reminders = buildReminderMessage();
+        if (!reminders.isEmpty()) {
+            ui.showMessage(reminders);
+        }
         while (ui.hasNextLine()) {
             String input = ui.readCommand();
             try {
