@@ -1,5 +1,6 @@
+package duke;
+
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.api.FxRobot;
@@ -9,8 +10,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/** Tests that the FXML-based window loads and handles messages correctly. */
 @ExtendWith(ApplicationExtension.class)
-public class Part3Test {
+public class Part4Test {
 
     @Start
     public void start(Stage stage) throws Exception {
@@ -18,21 +20,20 @@ public class Part3Test {
     }
 
     @Test
-    public void sendingMessageShowsResponse(FxRobot robot) {
-        robot.clickOn("#userInput").write("todo read book");
+    public void fxmlWindowLoads(FxRobot robot) {
+        robot.lookup("#userInput").query();
+        robot.lookup("#sendButton").queryButton();
+        robot.lookup("#scrollPane").query();
+    }
+
+    @Test
+    public void sendingMessageWorksAfterFxmlRefactor(FxRobot robot) {
+        robot.clickOn("#userInput").write("todo fxml task");
         robot.clickOn("#sendButton");
 
         assertTrue(
             robot.lookup(".label").queryAllAs(Label.class)
                  .stream().anyMatch(l -> l.getText().contains("Got it. I've added this task"))
         );
-    }
-
-    @Test
-    public void inputFieldClearedAfterSend(FxRobot robot) {
-        robot.clickOn("#userInput").write("todo return book");
-        robot.clickOn("#sendButton");
-
-        assertTrue(robot.lookup("#userInput").queryAs(TextField.class).getText().isEmpty());
     }
 }

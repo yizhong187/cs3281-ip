@@ -1,3 +1,7 @@
+package duke.ui;
+
+import duke.Duke;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -6,7 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
-/** Controller for the main GUI. */
+/** Controller for the main GUI window. */
 public class MainWindow extends AnchorPane {
 
     @FXML private ScrollPane scrollPane;
@@ -19,6 +23,7 @@ public class MainWindow extends AnchorPane {
     private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
     private Image dukeImage = new Image(this.getClass().getResourceAsStream("/images/DaDuke.png"));
 
+    /** Initialises the GUI: binds scroll pane and shows greeting. */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
@@ -27,14 +32,18 @@ public class MainWindow extends AnchorPane {
         dialogContainer.getChildren().add(greeting);
     }
 
-    /** Injects the Duke instance. */
+    /**
+     * Injects the Duke instance into this controller.
+     *
+     * @param d the Duke application instance
+     */
     public void setDuke(Duke d) {
         duke = d;
     }
 
     /**
-     * Creates two dialog boxes — one echoing user input and one containing Duke's reply —
-     * and appends them to the dialog container. Clears the user input after processing.
+     * Handles user input: creates dialog boxes for the user's message and Aria's reply,
+     * then clears the input field.
      */
     @FXML
     private void handleUserInput() {

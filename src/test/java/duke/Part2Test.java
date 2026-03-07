@@ -1,3 +1,5 @@
+package duke;
+
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.api.FxRobot;
@@ -5,6 +7,7 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+/** Tests that the main window contains all required UI controls. */
 @ExtendWith(ApplicationExtension.class)
 public class Part2Test {
 

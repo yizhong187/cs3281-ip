@@ -10,7 +10,8 @@
       "Bash(curl*)",
       "Bash(python3:*)",
       "Bash(jar tf:*)",
-      "Bash(jar xf:*)"
+      "Bash(jar xf:*)",
+      "WebFetch(domain:nus-cs2103-ay2526-s2.github.io)"
     ]
   }
 }

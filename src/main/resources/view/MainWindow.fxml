@@ -9,7 +9,7 @@
 <AnchorPane minHeight="400.0" minWidth="380.0"
             prefHeight="600.0" prefWidth="400.0" style="-fx-background-color: #f5f5f5;"
             xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="MainWindow">
+            fx:controller="duke.ui.MainWindow">
     <children>
         <TextField fx:id="userInput" onAction="#handleUserInput"
                    prefHeight="41.0" promptText="Type a message..."

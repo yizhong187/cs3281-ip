@@ -1,4 +1,18 @@
+package duke.command;
+
+import duke.DukeException;
+
+/**
+ * Parses raw user input strings into {@link Command} objects.
+ */
 public class Parser {
+    /**
+     * Parses the given user input and returns the corresponding {@link Command}.
+     *
+     * @param input the raw user input string
+     * @return the parsed Command
+     * @throws DukeException if the input is invalid or unrecognised
+     */
     public static Command parse(String input) throws DukeException {
         String trimmed = input.trim();
         String[] parts = trimmed.split(" ", 2);
@@ -35,9 +49,11 @@ public class Parser {
             }
             String[] deadlineParts = parts[1].split(" /by ", 2);
             if (deadlineParts.length < 2) {
-                throw new DukeException("OOPS!!! A deadline needs a /by date. Usage: deadline <desc> /by <date>");
+                throw new DukeException(
+                        "OOPS!!! A deadline needs a /by date. Usage: deadline <desc> /by <date>");
             }
-            return new Command(CommandType.DEADLINE, deadlineParts[0].trim(), deadlineParts[1].trim(), null, null);
+            return new Command(CommandType.DEADLINE, deadlineParts[0].trim(),
+                    deadlineParts[1].trim(), null, null);
         }
         case "event": {
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
@@ -45,13 +61,16 @@ public class Parser {
             }
             String[] eventParts = parts[1].split(" /from ", 2);
             if (eventParts.length < 2) {
-                throw new DukeException("OOPS!!! An event needs /from and /to times. Usage: event <desc> /from <time> /to <time>");
+                throw new DukeException("OOPS!!! An event needs /from and /to times. "
+                        + "Usage: event <desc> /from <time> /to <time>");
             }
             String[] timeParts = eventParts[1].split(" /to ", 2);
             if (timeParts.length < 2) {
-                throw new DukeException("OOPS!!! An event needs a /to time. Usage: event <desc> /from <time> /to <time>");
+                throw new DukeException("OOPS!!! An event needs a /to time. "
+                        + "Usage: event <desc> /from <time> /to <time>");
             }
-            return new Command(CommandType.EVENT, eventParts[0].trim(), null, timeParts[0].trim(), timeParts[1].trim());
+            return new Command(CommandType.EVENT, eventParts[0].trim(),
+                    null, timeParts[0].trim(), timeParts[1].trim());
         }
         case "find":
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
@@ -61,7 +80,9 @@ public class Parser {
         case "help":
             return new Command(CommandType.HELP, null, null, null, null);
         default:
-            throw new DukeException("OOPS!!! I'm sorry, but I don't know what that means :-( Type 'help' to see a list of available commands.");
+            throw new DukeException(
+                    "OOPS!!! I'm sorry, but I don't know what that means :-( "
+                    + "Type 'help' to see a list of available commands.");
         }
     }
 }

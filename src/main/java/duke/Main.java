@@ -1,17 +1,28 @@
+package duke;
+
 import java.io.IOException;
+
+import duke.ui.MainWindow;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
-/** A GUI for Duke using FXML. */
+/** A GUI for Aria using FXML. */
 public class Main extends Application {
 
     private Duke duke = new Duke();
 
+    /** Default constructor required by JavaFX. */
     public Main() {}
 
+    /**
+     * Starts the JavaFX application by loading the FXML layout.
+     *
+     * @param stage the primary stage
+     */
     @Override
     public void start(Stage stage) {
         try {

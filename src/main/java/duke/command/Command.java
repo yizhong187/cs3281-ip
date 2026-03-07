@@ -1,3 +1,20 @@
+package duke.command;
+
+import duke.DukeException;
+import duke.storage.Storage;
+import duke.task.Deadline;
+import duke.task.Event;
+import duke.task.Task;
+import duke.task.TaskList;
+import duke.task.Todo;
+import duke.ui.Ui;
+
+import java.util.ArrayList;
+
+/**
+ * Represents a parsed user command with its associated parameters.
+ * Supports both CLI execution (via {@link #execute}) and GUI output (via {@link #getOutput}).
+ */
 public class Command {
     private CommandType type;
     private String description;
@@ -5,6 +22,15 @@ public class Command {
     private String from;
     private String to;
 
+    /**
+     * Constructs a Command with the given type and parameters.
+     *
+     * @param type        the command type
+     * @param description the main argument (task description or index)
+     * @param by          the deadline date (for DEADLINE commands)
+     * @param from        the start time (for EVENT commands)
+     * @param to          the end time (for EVENT commands)
+     */
     public Command(CommandType type, String description, String by, String from, String to) {
         this.type = type;
         this.description = description;
@@ -13,14 +39,33 @@ public class Command {
         this.to = to;
     }
 
+    /**
+     * Returns the type of this command.
+     *
+     * @return the CommandType
+     */
     public CommandType getType() {
         return type;
     }
 
+    /**
+     * Returns true if this is an exit (BYE) command.
+     *
+     * @return true if BYE, false otherwise
+     */
     public boolean isExit() {
         return type == CommandType.BYE;
     }
 
+    /**
+     * Executes this command in CLI mode, producing output via {@link Ui}
+     * and persisting changes via {@link Storage}.
+     *
+     * @param taskList the current task list
+     * @param ui       the CLI user interface
+     * @param storage  the storage handler
+     * @throws DukeException if the command cannot be executed
+     */
     public void execute(TaskList taskList, Ui ui, Storage storage) throws DukeException {
         switch (type) {
         case LIST:
@@ -82,7 +127,14 @@ public class Command {
         }
     }
 
-    /** Executes the command and returns the response as a String (for GUI use). */
+    /**
+     * Executes this command and returns the response as a String for GUI display.
+     *
+     * @param taskList the current task list
+     * @param storage  the storage handler
+     * @return the response string
+     * @throws DukeException if the command cannot be executed
+     */
     public String getOutput(TaskList taskList, Storage storage) throws DukeException {
         switch (type) {
         case LIST: {
@@ -139,7 +191,7 @@ public class Command {
                     + "\nNow you have " + taskList.size() + " tasks in the list.";
         }
         case FIND: {
-            java.util.ArrayList<Task> results = taskList.find(description);
+            ArrayList<Task> results = taskList.find(description);
             if (results.isEmpty()) {
                 return "No matching tasks found.";
             }
@@ -154,15 +206,15 @@ public class Command {
         }
         case HELP:
             return "Available commands:\n"
-                    + "• list\n"
-                    + "• todo <desc>\n"
-                    + "• deadline <desc> /by <date>\n"
-                    + "• event <desc> /from <time> /to <time>\n"
-                    + "• mark <num>\n"
-                    + "• unmark <num>\n"
-                    + "• delete <num>\n"
-                    + "• find <keyword>\n"
-                    + "• bye";
+                    + "  list\n"
+                    + "  todo <desc>\n"
+                    + "  deadline <desc> /by <date>\n"
+                    + "  event <desc> /from <time> /to <time>\n"
+                    + "  mark <num>\n"
+                    + "  unmark <num>\n"
+                    + "  delete <num>\n"
+                    + "  find <keyword>\n"
+                    + "  bye";
         case BYE:
             return "Bye. Hope to see you again soon!";
         default:
@@ -170,6 +222,14 @@ public class Command {
         }
     }
 
+    /**
+     * Parses a 1-based index string and returns the 0-based index.
+     *
+     * @param indexStr the string to parse
+     * @param taskList the task list to validate against
+     * @return the 0-based index
+     * @throws DukeException if the index is not a valid number or out of range
+     */
     private int parseIndex(String indexStr, TaskList taskList) throws DukeException {
         try {
             int index = Integer.parseInt(indexStr) - 1;
