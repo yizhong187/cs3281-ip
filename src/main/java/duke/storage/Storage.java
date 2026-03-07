@@ -21,6 +21,7 @@ import java.util.ArrayList;
  */
 public class Storage {
     private String filePath;
+    private String archivePath;
 
     /**
      * Constructs a Storage instance for the given file path.
@@ -30,6 +31,40 @@ public class Storage {
     public Storage(String filePath) {
         assert filePath != null && !filePath.isEmpty() : "File path must not be null or empty";
         this.filePath = filePath;
+        File f = new File(filePath);
+        String parent = f.getParent() != null ? f.getParent() : ".";
+        this.archivePath = parent + File.separator + "archive.txt";
+    }
+
+    /**
+     * Appends a task to the archive file.
+     *
+     * @param task the task to archive
+     * @throws DukeException if an I/O error occurs
+     */
+    public void appendToArchive(Task task) throws DukeException {
+        File file = new File(archivePath);
+        File dir = file.getParentFile();
+        if (dir != null && !dir.exists()) {
+            dir.mkdirs();
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+            writer.write(task.toFileString());
+            writer.newLine();
+        } catch (IOException e) {
+            throw new DukeException("Error writing to archive: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Loads all tasks from the archive file.
+     *
+     * @return list of archived tasks
+     * @throws DukeException if an I/O error occurs
+     */
+    public ArrayList<Task> loadArchive() throws DukeException {
+        Storage archiveStorage = new Storage(archivePath);
+        return archiveStorage.load();
     }
 
     /**

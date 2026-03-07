@@ -94,6 +94,13 @@ public class Parser {
                 throw new DukeException("OOPS!!! Please provide a keyword to search for.");
             }
             return new Command(CommandType.FIND, parts[1].trim(), null, null, null);
+        case "archive":
+            if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                throw new DukeException("OOPS!!! Please provide a task number to archive.");
+            }
+            return new Command(CommandType.ARCHIVE, parts[1].trim(), null, null, null);
+        case "archives":
+            return new Command(CommandType.ARCHIVES, null, null, null, null);
         case "tag":
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
                 throw new DukeException("OOPS!!! Usage: tag <num> <tagname>");

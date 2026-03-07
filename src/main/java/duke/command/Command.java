@@ -152,6 +152,19 @@ public class Command {
             ui.showTaskMarked(taskList.get(index));
             break;
         }
+        case ARCHIVE: {
+            int index = parseIndex(description, taskList);
+            Task removed = taskList.remove(index);
+            storage.appendToArchive(removed);
+            storage.save(taskList);
+            ui.showTaskDeleted(removed, taskList.size());
+            break;
+        }
+        case ARCHIVES: {
+            ArrayList<Task> archived = storage.loadArchive();
+            ui.showFoundTasks(archived);
+            break;
+        }
         case UPDATE: {
             String[] updateParts = description.split("\\s+", 2);
             int index = parseIndex(updateParts[0], taskList);
@@ -280,6 +293,24 @@ public class Command {
             taskList.get(index).removeTag(untagParts[1]);
             storage.save(taskList);
             return "Removed tag from task:\n  " + taskList.get(index);
+        }
+        case ARCHIVE: {
+            int index = parseIndex(description, taskList);
+            Task removed = taskList.remove(index);
+            storage.appendToArchive(removed);
+            storage.save(taskList);
+            return "Archived task:\n  " + removed
+                    + "\nNow you have " + taskList.size() + " tasks in the list.";
+        }
+        case ARCHIVES: {
+            ArrayList<Task> archived = storage.loadArchive();
+            if (archived.isEmpty()) {
+                return "No archived tasks.";
+            }
+            String archiveLines = IntStream.range(0, archived.size())
+                    .mapToObj(i -> (i + 1) + "." + archived.get(i))
+                    .collect(Collectors.joining("\n"));
+            return "Archived tasks:\n" + archiveLines;
         }
         case UPDATE: {
             String[] updateParts = description.split("\\s+", 2);
