@@ -48,9 +48,9 @@ public class StorageTest {
         ArrayList<Task> loaded = storage.load();
 
         assertEquals(3, loaded.size());
-        assertEquals("[T][ ] read book", loaded.get(0).toString());
-        assertEquals("[D][ ] submit (by: Dec 01 2024)", loaded.get(1).toString());
-        assertEquals("[E][ ] meeting (from: Mon 2pm to: 4pm)", loaded.get(2).toString());
+        assertEquals("[T][ ][M] read book", loaded.get(0).toString());
+        assertEquals("[D][ ][M] submit (by: Dec 01 2024)", loaded.get(1).toString());
+        assertEquals("[E][ ][M] meeting (from: Mon 2pm to: 4pm)", loaded.get(2).toString());
     }
 
     @Test
@@ -81,7 +81,7 @@ public class StorageTest {
         Storage storage = new Storage(file.getAbsolutePath());
         ArrayList<Task> tasks = storage.load();
         assertEquals(1, tasks.size());
-        assertEquals("[T][ ] valid todo", tasks.get(0).toString());
+        assertEquals("[T][ ][M] valid todo", tasks.get(0).toString());
     }
 
     @Test

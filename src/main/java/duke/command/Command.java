@@ -4,6 +4,7 @@ import duke.DukeException;
 import duke.storage.Storage;
 import duke.task.Deadline;
 import duke.task.Event;
+import duke.task.Priority;
 import duke.task.Task;
 import duke.task.TaskList;
 import duke.task.Todo;
@@ -23,6 +24,7 @@ public class Command {
     private String by;
     private String from;
     private String to;
+    private Priority priority;
 
     /**
      * Constructs a Command with the given type and parameters.
@@ -39,6 +41,16 @@ public class Command {
         this.by = by;
         this.from = from;
         this.to = to;
+        this.priority = Priority.MEDIUM;
+    }
+
+    /**
+     * Sets the priority for this command's task.
+     *
+     * @param priority the priority level
+     */
+    public void setPriority(Priority priority) {
+        this.priority = priority;
     }
 
     /**
@@ -95,21 +107,21 @@ public class Command {
             break;
         }
         case TODO: {
-            Task task = new Todo(description);
+            Task task = buildTask();
             taskList.add(task);
             ui.showTaskAdded(task, taskList.size());
             storage.save(taskList);
             break;
         }
         case DEADLINE: {
-            Task task = new Deadline(description, by);
+            Task task = buildTask();
             taskList.add(task);
             ui.showTaskAdded(task, taskList.size());
             storage.save(taskList);
             break;
         }
         case EVENT: {
-            Task task = new Event(description, from, to);
+            Task task = buildTask();
             taskList.add(task);
             ui.showTaskAdded(task, taskList.size());
             storage.save(taskList);
@@ -168,21 +180,21 @@ public class Command {
                     + "\nNow you have " + taskList.size() + " tasks in the list.";
         }
         case TODO: {
-            Task task = new Todo(description);
+            Task task = buildTask();
             taskList.add(task);
             storage.save(taskList);
             return "Got it. I've added this task:\n  " + task
                     + "\nNow you have " + taskList.size() + " tasks in the list.";
         }
         case DEADLINE: {
-            Task task = new Deadline(description, by);
+            Task task = buildTask();
             taskList.add(task);
             storage.save(taskList);
             return "Got it. I've added this task:\n  " + task
                     + "\nNow you have " + taskList.size() + " tasks in the list.";
         }
         case EVENT: {
-            Task task = new Event(description, from, to);
+            Task task = buildTask();
             taskList.add(task);
             storage.save(taskList);
             return "Got it. I've added this task:\n  " + task
@@ -234,5 +246,28 @@ public class Command {
         } catch (NumberFormatException e) {
             throw new DukeException("OOPS!!! Please provide a valid task number.");
         }
+    }
+
+    /**
+     * Builds the appropriate Task subclass from this command's fields,
+     * applying the stored priority level.
+     *
+     * @return the constructed Task with priority set
+     */
+    private Task buildTask() {
+        Task task;
+        switch (type) {
+        case DEADLINE:
+            task = new Deadline(description, by);
+            break;
+        case EVENT:
+            task = new Event(description, from, to);
+            break;
+        default:
+            task = new Todo(description);
+            break;
+        }
+        task.setPriority(priority);
+        return task;
     }
 }

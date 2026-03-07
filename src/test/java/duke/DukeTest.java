@@ -16,7 +16,7 @@ public class DukeTest {
     @Test
     public void todo_validDescription_createsTask() {
         Todo todo = new Todo("read book");
-        assertEquals("[T][ ] read book", todo.toString());
+        assertEquals("[T][ ][M] read book", todo.toString());
         assertFalse(todo.isDone());
     }
 
@@ -24,7 +24,7 @@ public class DukeTest {
     public void todo_markDone_showsX() {
         Todo todo = new Todo("return book");
         todo.markDone();
-        assertEquals("[T][X] return book", todo.toString());
+        assertEquals("[T][X][M] return book", todo.toString());
         assertTrue(todo.isDone());
     }
 
@@ -32,26 +32,26 @@ public class DukeTest {
     public void deadline_unparseable_displaysRaw() {
         // "ZZZUNKNOWNDATE" cannot be parsed by Natty, so it should display as-is
         Deadline deadline = new Deadline("submit report", "ZZZUNKNOWNDATE");
-        assertEquals("[D][ ] submit report (by: ZZZUNKNOWNDATE)", deadline.toString());
+        assertEquals("[D][ ][M] submit report (by: ZZZUNKNOWNDATE)", deadline.toString());
     }
 
     @Test
     public void deadline_isoDate_formatsToReadable() {
         Deadline deadline = new Deadline("submit report", "2024-12-01");
-        assertEquals("[D][ ] submit report (by: Dec 01 2024)", deadline.toString());
+        assertEquals("[D][ ][M] submit report (by: Dec 01 2024)", deadline.toString());
     }
 
     @Test
     public void deadline_naturalDate_parsedCorrectly() {
         // "next year" should parse to a future date — just verify it formats (not raw)
         Deadline deadline = new Deadline("future task", "2025-06-15");
-        assertEquals("[D][ ] future task (by: Jun 15 2025)", deadline.toString());
+        assertEquals("[D][ ][M] future task (by: Jun 15 2025)", deadline.toString());
     }
 
     @Test
     public void event_fromTo_displaysCorrectly() {
         Event event = new Event("project meeting", "Mon 2pm", "4pm");
-        assertEquals("[E][ ] project meeting (from: Mon 2pm to: 4pm)", event.toString());
+        assertEquals("[E][ ][M] project meeting (from: Mon 2pm to: 4pm)", event.toString());
     }
 
     @Test

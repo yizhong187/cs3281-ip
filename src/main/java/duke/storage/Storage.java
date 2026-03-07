@@ -96,24 +96,34 @@ public class Storage {
             String description = parts[2];
 
             Task task;
+            int priorityIndex;
             switch (type) {
-            case "T":
+            case "T" -> {
                 task = new Todo(description);
-                break;
-            case "D":
+                priorityIndex = 3;
+            }
+            case "D" -> {
                 if (parts.length < 4) {
                     return null;
                 }
                 task = new Deadline(description, parts[3]);
-                break;
-            case "E":
+                priorityIndex = 4;
+            }
+            case "E" -> {
                 if (parts.length < 5) {
                     return null;
                 }
                 task = new Event(description, parts[3], parts[4]);
-                break;
-            default:
+                priorityIndex = 5;
+            }
+            default -> {
                 return null;
+            }
+            }
+
+            // Load priority if present; default MEDIUM for backward compatibility
+            if (parts.length > priorityIndex) {
+                task.setPriority(duke.task.Priority.fromString(parts[priorityIndex]));
             }
 
             if (isDone) {
