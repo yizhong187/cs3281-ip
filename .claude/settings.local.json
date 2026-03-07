@@ -17,7 +17,9 @@
       "Bash(./gradlew checkstyleMain --stacktrace)",
       "Bash(./gradlew checkstyleTest)",
       "Bash(./gradlew checkstyleMain checkstyleTest)",
-      "Bash(./gradlew checkstyleMain test)"
+      "Bash(./gradlew checkstyleMain test)",
+      "Bash(./gradlew shadowJar)",
+      "Bash(ls -lh build/libs/*.jar)"
     ]
   }
 }
