@@ -93,6 +93,11 @@ public class Parser {
             eventCmd.setPriority(eventPriority);
             return eventCmd;
         }
+        case "freetime":
+            if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                throw new DukeException("OOPS!!! Usage: freetime <date> <duration_hours>");
+            }
+            return new Command(CommandType.FREETIME, parts[1].trim(), null, null, null);
         case "fixed": {
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
                 throw new DukeException("OOPS!!! Usage: fixed <desc> /duration <hours>");

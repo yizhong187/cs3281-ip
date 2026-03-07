@@ -172,7 +172,7 @@ public class Command {
             storage.save(taskList);
             break;
         }
-        case FIXED: case WITHIN: case TEVENT: case CONFIRM:
+        case FREETIME: case FIXED: case WITHIN: case TEVENT: case CONFIRM:
             ui.showMessage(getOutput(taskList, storage));
             break;
         case FIND:
@@ -308,6 +308,59 @@ public class Command {
             storage.save(taskList);
             delSb.append("\nNow you have ").append(taskList.size()).append(" tasks in the list.");
             return delSb.toString();
+        }
+        case FREETIME: {
+            String[] freeParts = description.split("\\s+", 2);
+            java.time.LocalDate freeDate = duke.util.DateParser.parse(freeParts[0]);
+            if (freeDate == null) {
+                return "Could not parse date: " + freeParts[0];
+            }
+            double neededHours = 1.0;
+            if (freeParts.length > 1) {
+                try {
+                    neededHours = Double.parseDouble(freeParts[1].trim());
+                } catch (NumberFormatException e) {
+                    return "Could not parse duration: " + freeParts[1];
+                }
+            }
+            // Collect all events on this date and their hour ranges
+            java.util.List<int[]> busySlots = new java.util.ArrayList<>();
+            for (int i = 0; i < taskList.size(); i++) {
+                Task t = taskList.get(i);
+                if (t instanceof Event) {
+                    Event ev = (Event) t;
+                    java.time.LocalDate fd = ev.getFromDate();
+                    java.time.LocalDate td = ev.getToDate();
+                    if (fd != null && td != null
+                            && !freeDate.isBefore(fd) && !freeDate.isAfter(td)) {
+                        busySlots.add(new int[]{0, 24});
+                    } else if (fd != null && fd.equals(freeDate)) {
+                        busySlots.add(new int[]{0, 24});
+                    }
+                }
+            }
+            // Simple output: list available windows across the 8-22 window
+            int neededBlocks = (int) Math.ceil(neededHours);
+            StringBuilder freeSb = new StringBuilder(
+                    "Free slots on " + freeDate + " (need " + neededHours + "h):");
+            boolean foundAny = false;
+            if (busySlots.isEmpty()) {
+                for (int h = 8; h + neededBlocks <= 22; h++) {
+                    freeSb.append("\n  ").append(String.format("%02d:00", h))
+                            .append(" - ").append(String.format("%02d:00", h + neededBlocks));
+                    foundAny = true;
+                    if (foundAny && h >= 10) {
+                        freeSb.append("\n  ... (more slots available)");
+                        break;
+                    }
+                }
+            } else {
+                freeSb.append("\n  No free slots found (events cover the day).");
+            }
+            if (!foundAny && busySlots.isEmpty()) {
+                freeSb.append("\n  No free slots found.");
+            }
+            return freeSb.toString();
         }
         case FIXED: {
             double hours;
