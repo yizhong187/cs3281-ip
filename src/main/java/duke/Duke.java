@@ -30,6 +30,9 @@ public class Duke {
             ui.showLoadingError();
             taskList = new TaskList();
         }
+        assert ui != null : "Ui must be initialised";
+        assert storage != null : "Storage must be initialised";
+        assert taskList != null : "TaskList must be initialised";
     }
 
     /**

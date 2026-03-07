@@ -28,6 +28,7 @@ public class TaskList {
      * @param task the task to add
      */
     public void add(Task task) {
+        assert task != null : "Cannot add a null task";
         tasks.add(task);
     }
 
@@ -38,6 +39,7 @@ public class TaskList {
      * @return the removed task
      */
     public Task remove(int index) {
+        assert index >= 0 && index < tasks.size() : "Remove index out of range: " + index;
         return tasks.remove(index);
     }
 
@@ -48,6 +50,7 @@ public class TaskList {
      * @return the task
      */
     public Task get(int index) {
+        assert index >= 0 && index < tasks.size() : "Get index out of range: " + index;
         return tasks.get(index);
     }
 

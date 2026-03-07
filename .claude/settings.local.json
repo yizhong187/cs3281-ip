@@ -16,7 +16,8 @@
       "Bash(./gradlew checkstyleMain --info)",
       "Bash(./gradlew checkstyleMain --stacktrace)",
       "Bash(./gradlew checkstyleTest)",
-      "Bash(./gradlew checkstyleMain checkstyleTest)"
+      "Bash(./gradlew checkstyleMain checkstyleTest)",
+      "Bash(./gradlew checkstyleMain test)"
     ]
   }
 }

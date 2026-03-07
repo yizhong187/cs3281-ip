@@ -28,6 +28,7 @@ public class Storage {
      * @param filePath the path to the data file
      */
     public Storage(String filePath) {
+        assert filePath != null && !filePath.isEmpty() : "File path must not be null or empty";
         this.filePath = filePath;
     }
 
@@ -115,6 +116,7 @@ public class Storage {
      * @throws DukeException if an I/O error occurs
      */
     public void save(TaskList taskList) throws DukeException {
+        assert taskList != null : "TaskList to save must not be null";
         File file = new File(filePath);
         File dir = file.getParentFile();
 
