@@ -10,6 +10,8 @@ import duke.task.Todo;
 import duke.ui.Ui;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Represents a parsed user command with its associated parameters.
@@ -141,14 +143,10 @@ public class Command {
             if (taskList.size() == 0) {
                 return "No tasks in your list yet.";
             }
-            StringBuilder sb = new StringBuilder("Here are the tasks in your list:\n");
-            for (int i = 0; i < taskList.size(); i++) {
-                sb.append(i + 1).append(".").append(taskList.get(i));
-                if (i < taskList.size() - 1) {
-                    sb.append("\n");
-                }
-            }
-            return sb.toString();
+            String taskLines = IntStream.range(0, taskList.size())
+                    .mapToObj(i -> (i + 1) + "." + taskList.get(i))
+                    .collect(Collectors.joining("\n"));
+            return "Here are the tasks in your list:\n" + taskLines;
         }
         case MARK: {
             int index = parseIndex(description, taskList);
@@ -195,14 +193,10 @@ public class Command {
             if (results.isEmpty()) {
                 return "No matching tasks found.";
             }
-            StringBuilder sb = new StringBuilder("Here are the matching tasks in your list:\n");
-            for (int i = 0; i < results.size(); i++) {
-                sb.append(i + 1).append(".").append(results.get(i));
-                if (i < results.size() - 1) {
-                    sb.append("\n");
-                }
-            }
-            return sb.toString();
+            String matchLines = IntStream.range(0, results.size())
+                    .mapToObj(i -> (i + 1) + "." + results.get(i))
+                    .collect(Collectors.joining("\n"));
+            return "Here are the matching tasks in your list:\n" + matchLines;
         }
         case HELP:
             return "Available commands:\n"
