@@ -137,19 +137,48 @@ public class TaskList {
      * @param keyword the search keyword
      * @return list of matching tasks
      */
+    /**
+     * Finds tasks matching the given keyword or filter.
+     * Supports:
+     * - {@code #tagname} – filter by tag
+     * - {@code /type todo|deadline|event} – filter by task type
+     * - {@code /priority high|medium|low} – filter by priority
+     * - plain text – substring match on description (case-insensitive)
+     *
+     * @param keyword the search keyword or filter expression
+     * @return list of matching tasks
+     */
     public ArrayList<Task> find(String keyword) {
-        String lower = keyword.toLowerCase();
+        String lower = keyword.toLowerCase().trim();
         ArrayList<Task> result = new ArrayList<>();
         if (lower.startsWith("#")) {
             String tag = lower.substring(1);
-            tasks.stream()
-                    .filter(task -> task.hasTag(tag))
-                    .forEach(result::add);
+            tasks.stream().filter(t -> t.hasTag(tag)).forEach(result::add);
+        } else if (lower.startsWith("/type ")) {
+            String type = lower.substring(6).trim();
+            tasks.stream().filter(t -> matchesType(t, type)).forEach(result::add);
+        } else if (lower.startsWith("/priority ")) {
+            String prio = lower.substring(10).trim();
+            duke.task.Priority target = duke.task.Priority.fromString(prio);
+            tasks.stream().filter(t -> t.getPriority() == target).forEach(result::add);
         } else {
             tasks.stream()
-                    .filter(task -> task.getDescription().toLowerCase().contains(lower))
+                    .filter(t -> t.getDescription().toLowerCase().contains(lower))
                     .forEach(result::add);
         }
         return result;
+    }
+
+    private boolean matchesType(Task task, String type) {
+        switch (type) {
+        case "todo":
+            return task instanceof Todo;
+        case "deadline":
+            return task instanceof Deadline;
+        case "event":
+            return task instanceof Event;
+        default:
+            return false;
+        }
     }
 }
