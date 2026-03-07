@@ -126,6 +126,14 @@ public class Storage {
                 task.setPriority(duke.task.Priority.fromString(parts[priorityIndex]));
             }
 
+            // Load tags if present (comma-separated, field after priority)
+            int tagsIndex = priorityIndex + 1;
+            if (parts.length > tagsIndex && !parts[tagsIndex].trim().isEmpty()) {
+                for (String tag : parts[tagsIndex].split(",")) {
+                    task.addTag(tag.trim());
+                }
+            }
+
             if (isDone) {
                 task.markDone();
             }

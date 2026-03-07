@@ -1,13 +1,17 @@
 package duke.task;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
- * Represents an abstract task with a description, completion status, and priority level.
+ * Represents an abstract task with a description, completion status, priority level, and tags.
  * Subclasses must implement {@code toFileString()} for file persistence.
  */
 public abstract class Task {
     protected String description;
     protected boolean isDone;
     protected Priority priority;
+    protected Set<String> tags;
 
     /**
      * Constructs a Task with the given description, initially not done and MEDIUM priority.
@@ -18,6 +22,7 @@ public abstract class Task {
         this.description = description;
         this.isDone = false;
         this.priority = Priority.MEDIUM;
+        this.tags = new LinkedHashSet<>();
     }
 
     /** Marks this task as done. */
@@ -76,6 +81,52 @@ public abstract class Task {
     }
 
     /**
+     * Adds a tag to this task.
+     *
+     * @param tag the tag name (without #)
+     */
+    public void addTag(String tag) {
+        tags.add(tag.toLowerCase());
+    }
+
+    /**
+     * Removes a tag from this task.
+     *
+     * @param tag the tag name to remove
+     */
+    public void removeTag(String tag) {
+        tags.remove(tag.toLowerCase());
+    }
+
+    /**
+     * Returns the set of tags on this task.
+     *
+     * @return the tags set
+     */
+    public Set<String> getTags() {
+        return tags;
+    }
+
+    /**
+     * Returns true if this task has the given tag.
+     *
+     * @param tag the tag to check
+     * @return true if tagged
+     */
+    public boolean hasTag(String tag) {
+        return tags.contains(tag.toLowerCase());
+    }
+
+    /**
+     * Returns a comma-separated string of tags for file storage, or empty string if no tags.
+     *
+     * @return the tags file string
+     */
+    public String getTagsFileString() {
+        return String.join(",", tags);
+    }
+
+    /**
      * Returns the status icon for display.
      *
      * @return "X" if done, " " otherwise
@@ -86,7 +137,13 @@ public abstract class Task {
 
     @Override
     public String toString() {
-        return "[" + getStatusIcon() + "][" + priority.getSymbol() + "] " + description;
+        String base = "[" + getStatusIcon() + "][" + priority.getSymbol() + "] " + description;
+        if (tags.isEmpty()) {
+            return base;
+        }
+        String tagStr = tags.stream().map(t -> "#" + t)
+                .collect(java.util.stream.Collectors.joining(" "));
+        return base + " " + tagStr;
     }
 
     /**

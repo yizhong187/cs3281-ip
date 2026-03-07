@@ -130,6 +130,28 @@ public class Command {
         case FIND:
             ui.showFoundTasks(taskList.find(description));
             break;
+        case TAG: {
+            String[] tagParts = description.split("\\s+", 2);
+            int index = parseIndex(tagParts[0], taskList);
+            if (tagParts.length < 2) {
+                throw new DukeException("OOPS!!! Please provide a tag name.");
+            }
+            taskList.get(index).addTag(tagParts[1]);
+            storage.save(taskList);
+            ui.showTaskMarked(taskList.get(index));
+            break;
+        }
+        case UNTAG: {
+            String[] untagParts = description.split("\\s+", 2);
+            int index = parseIndex(untagParts[0], taskList);
+            if (untagParts.length < 2) {
+                throw new DukeException("OOPS!!! Please provide a tag name to remove.");
+            }
+            taskList.get(index).removeTag(untagParts[1]);
+            storage.save(taskList);
+            ui.showTaskMarked(taskList.get(index));
+            break;
+        }
         case UPDATE: {
             String[] updateParts = description.split("\\s+", 2);
             int index = parseIndex(updateParts[0], taskList);
@@ -223,6 +245,26 @@ public class Command {
                     .mapToObj(i -> (i + 1) + "." + results.get(i))
                     .collect(Collectors.joining("\n"));
             return "Here are the matching tasks in your list:\n" + matchLines;
+        }
+        case TAG: {
+            String[] tagParts = description.split("\\s+", 2);
+            int index = parseIndex(tagParts[0], taskList);
+            if (tagParts.length < 2) {
+                throw new DukeException("OOPS!!! Please provide a tag name.");
+            }
+            taskList.get(index).addTag(tagParts[1]);
+            storage.save(taskList);
+            return "Tagged task:\n  " + taskList.get(index);
+        }
+        case UNTAG: {
+            String[] untagParts = description.split("\\s+", 2);
+            int index = parseIndex(untagParts[0], taskList);
+            if (untagParts.length < 2) {
+                throw new DukeException("OOPS!!! Please provide a tag name to remove.");
+            }
+            taskList.get(index).removeTag(untagParts[1]);
+            storage.save(taskList);
+            return "Removed tag from task:\n  " + taskList.get(index);
         }
         case UPDATE: {
             String[] updateParts = description.split("\\s+", 2);

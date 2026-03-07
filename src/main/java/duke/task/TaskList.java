@@ -127,11 +127,18 @@ public class TaskList {
      * @return list of matching tasks
      */
     public ArrayList<Task> find(String keyword) {
-        String lowerKeyword = keyword.toLowerCase();
+        String lower = keyword.toLowerCase();
         ArrayList<Task> result = new ArrayList<>();
-        tasks.stream()
-                .filter(task -> task.getDescription().toLowerCase().contains(lowerKeyword))
-                .forEach(result::add);
+        if (lower.startsWith("#")) {
+            String tag = lower.substring(1);
+            tasks.stream()
+                    .filter(task -> task.hasTag(tag))
+                    .forEach(result::add);
+        } else {
+            tasks.stream()
+                    .filter(task -> task.getDescription().toLowerCase().contains(lower))
+                    .forEach(result::add);
+        }
         return result;
     }
 }

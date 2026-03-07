@@ -94,6 +94,16 @@ public class Parser {
                 throw new DukeException("OOPS!!! Please provide a keyword to search for.");
             }
             return new Command(CommandType.FIND, parts[1].trim(), null, null, null);
+        case "tag":
+            if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                throw new DukeException("OOPS!!! Usage: tag <num> <tagname>");
+            }
+            return new Command(CommandType.TAG, parts[1].trim(), null, null, null);
+        case "untag":
+            if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                throw new DukeException("OOPS!!! Usage: untag <num> <tagname>");
+            }
+            return new Command(CommandType.UNTAG, parts[1].trim(), null, null, null);
         case "update":
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
                 throw new DukeException("OOPS!!! Usage: update <num> [/desc NEW] [/by NEW] "
