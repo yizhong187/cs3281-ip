@@ -194,6 +194,18 @@ public class Storage {
                 task = new Event(description, parts[3], parts[4]);
                 priorityIndex = 5;
             }
+            case "F" -> {
+                if (parts.length < 4) {
+                    return null;
+                }
+                try {
+                    double hours = Double.parseDouble(parts[3].trim());
+                    task = new duke.task.FixedDurationTask(description, hours);
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+                priorityIndex = 4;
+            }
             case "W" -> {
                 if (parts.length < 5) {
                     return null;

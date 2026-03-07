@@ -104,7 +104,7 @@ public class Command {
         switch (type) {
         case MARK: case UNMARK: case DELETE: case TODO: case DEADLINE: case EVENT:
         case ARCHIVE: case TAG: case UNTAG: case UPDATE: case SORT: case SNOOZE:
-        case TEVENT: case CONFIRM: case WITHIN:
+        case TEVENT: case CONFIRM: case WITHIN: case FIXED:
             return true;
         default:
             return false;
@@ -172,7 +172,7 @@ public class Command {
             storage.save(taskList);
             break;
         }
-        case WITHIN: case TEVENT: case CONFIRM:
+        case FIXED: case WITHIN: case TEVENT: case CONFIRM:
             ui.showMessage(getOutput(taskList, storage));
             break;
         case FIND:
@@ -308,6 +308,25 @@ public class Command {
             storage.save(taskList);
             delSb.append("\nNow you have ").append(taskList.size()).append(" tasks in the list.");
             return delSb.toString();
+        }
+        case FIXED: {
+            double hours;
+            try {
+                hours = Double.parseDouble(by);
+            } catch (NumberFormatException e) {
+                throw new DukeException("OOPS!!! Duration must be a number (e.g. 1.5 for 1.5 hours).");
+            }
+            boolean fixedDup = taskList.hasDuplicate(description);
+            Task fixedTask = new duke.task.FixedDurationTask(description, hours);
+            fixedTask.setPriority(priority);
+            taskList.add(fixedTask);
+            storage.save(taskList);
+            String fixedMsg = "Got it. I've added this task:\n  " + fixedTask
+                    + "\nNow you have " + taskList.size() + " tasks in the list.";
+            if (fixedDup) {
+                fixedMsg = "Warning: A task with this description already exists!\n" + fixedMsg;
+            }
+            return fixedMsg;
         }
         case WITHIN: {
             boolean dup = taskList.hasDuplicate(description);

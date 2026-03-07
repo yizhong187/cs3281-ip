@@ -93,6 +93,18 @@ public class Parser {
             eventCmd.setPriority(eventPriority);
             return eventCmd;
         }
+        case "fixed": {
+            if (parts.length < 2 || parts[1].trim().isEmpty()) {
+                throw new DukeException("OOPS!!! Usage: fixed <desc> /duration <hours>");
+            }
+            String[] fixedParts = parts[1].split(" /duration ", 2);
+            if (fixedParts.length < 2) {
+                throw new DukeException(
+                        "OOPS!!! A fixed task needs /duration. Usage: fixed <desc> /duration <hours>");
+            }
+            return new Command(CommandType.FIXED, fixedParts[0].trim(),
+                    fixedParts[1].trim(), null, null);
+        }
         case "within": {
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
                 throw new DukeException(
