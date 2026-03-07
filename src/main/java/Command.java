@@ -1,0 +1,184 @@
+public class Command {
+    private CommandType type;
+    private String description;
+    private String by;
+    private String from;
+    private String to;
+
+    public Command(CommandType type, String description, String by, String from, String to) {
+        this.type = type;
+        this.description = description;
+        this.by = by;
+        this.from = from;
+        this.to = to;
+    }
+
+    public CommandType getType() {
+        return type;
+    }
+
+    public boolean isExit() {
+        return type == CommandType.BYE;
+    }
+
+    public void execute(TaskList taskList, Ui ui, Storage storage) throws DukeException {
+        switch (type) {
+        case LIST:
+            ui.showTaskList(taskList);
+            break;
+        case MARK: {
+            int index = parseIndex(description, taskList);
+            taskList.get(index).markDone();
+            ui.showTaskMarked(taskList.get(index));
+            storage.save(taskList);
+            break;
+        }
+        case UNMARK: {
+            int index = parseIndex(description, taskList);
+            taskList.get(index).markUndone();
+            ui.showTaskUnmarked(taskList.get(index));
+            storage.save(taskList);
+            break;
+        }
+        case DELETE: {
+            int index = parseIndex(description, taskList);
+            Task removed = taskList.remove(index);
+            ui.showTaskDeleted(removed, taskList.size());
+            storage.save(taskList);
+            break;
+        }
+        case TODO: {
+            Task task = new Todo(description);
+            taskList.add(task);
+            ui.showTaskAdded(task, taskList.size());
+            storage.save(taskList);
+            break;
+        }
+        case DEADLINE: {
+            Task task = new Deadline(description, by);
+            taskList.add(task);
+            ui.showTaskAdded(task, taskList.size());
+            storage.save(taskList);
+            break;
+        }
+        case EVENT: {
+            Task task = new Event(description, from, to);
+            taskList.add(task);
+            ui.showTaskAdded(task, taskList.size());
+            storage.save(taskList);
+            break;
+        }
+        case FIND:
+            ui.showFoundTasks(taskList.find(description));
+            break;
+        case HELP:
+            ui.showHelp();
+            break;
+        case BYE:
+            ui.showGoodbye();
+            break;
+        default:
+            break;
+        }
+    }
+
+    /** Executes the command and returns the response as a String (for GUI use). */
+    public String getOutput(TaskList taskList, Storage storage) throws DukeException {
+        switch (type) {
+        case LIST: {
+            if (taskList.size() == 0) {
+                return "No tasks in your list yet.";
+            }
+            StringBuilder sb = new StringBuilder("Here are the tasks in your list:\n");
+            for (int i = 0; i < taskList.size(); i++) {
+                sb.append(i + 1).append(".").append(taskList.get(i));
+                if (i < taskList.size() - 1) {
+                    sb.append("\n");
+                }
+            }
+            return sb.toString();
+        }
+        case MARK: {
+            int index = parseIndex(description, taskList);
+            taskList.get(index).markDone();
+            storage.save(taskList);
+            return "Nice! I've marked this task as done:\n  " + taskList.get(index);
+        }
+        case UNMARK: {
+            int index = parseIndex(description, taskList);
+            taskList.get(index).markUndone();
+            storage.save(taskList);
+            return "OK, I've marked this task as not done yet:\n  " + taskList.get(index);
+        }
+        case DELETE: {
+            int index = parseIndex(description, taskList);
+            Task removed = taskList.remove(index);
+            storage.save(taskList);
+            return "Noted. I've removed this task:\n  " + removed
+                    + "\nNow you have " + taskList.size() + " tasks in the list.";
+        }
+        case TODO: {
+            Task task = new Todo(description);
+            taskList.add(task);
+            storage.save(taskList);
+            return "Got it. I've added this task:\n  " + task
+                    + "\nNow you have " + taskList.size() + " tasks in the list.";
+        }
+        case DEADLINE: {
+            Task task = new Deadline(description, by);
+            taskList.add(task);
+            storage.save(taskList);
+            return "Got it. I've added this task:\n  " + task
+                    + "\nNow you have " + taskList.size() + " tasks in the list.";
+        }
+        case EVENT: {
+            Task task = new Event(description, from, to);
+            taskList.add(task);
+            storage.save(taskList);
+            return "Got it. I've added this task:\n  " + task
+                    + "\nNow you have " + taskList.size() + " tasks in the list.";
+        }
+        case FIND: {
+            java.util.ArrayList<Task> results = taskList.find(description);
+            if (results.isEmpty()) {
+                return "No matching tasks found.";
+            }
+            StringBuilder sb = new StringBuilder("Here are the matching tasks in your list:\n");
+            for (int i = 0; i < results.size(); i++) {
+                sb.append(i + 1).append(".").append(results.get(i));
+                if (i < results.size() - 1) {
+                    sb.append("\n");
+                }
+            }
+            return sb.toString();
+        }
+        case HELP:
+            return "Available commands:\n"
+                    + "• list\n"
+                    + "• todo <desc>\n"
+                    + "• deadline <desc> /by <date>\n"
+                    + "• event <desc> /from <time> /to <time>\n"
+                    + "• mark <num>\n"
+                    + "• unmark <num>\n"
+                    + "• delete <num>\n"
+                    + "• find <keyword>\n"
+                    + "• bye";
+        case BYE:
+            return "Bye. Hope to see you again soon!";
+        default:
+            return "";
+        }
+    }
+
+    private int parseIndex(String indexStr, TaskList taskList) throws DukeException {
+        try {
+            int index = Integer.parseInt(indexStr) - 1;
+            if (index < 0 || index >= taskList.size()) {
+                throw new DukeException("OOPS!!! Task number " + (index + 1) + " does not exist.");
+            }
+            return index;
+        } catch (NumberFormatException e) {
+            throw new DukeException("OOPS!!! Please provide a valid task number.");
+        }
+    }
+}

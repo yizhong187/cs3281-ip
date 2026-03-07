@@ -9,16 +9,55 @@ repositories {
 }
 
 dependencies {
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'
+    String javaFxVersion = '17.0.7'
+    implementation group: 'org.openjfx', name: 'javafx-base',     version: javaFxVersion, classifier: 'win'
+    implementation group: 'org.openjfx', name: 'javafx-base',     version: javaFxVersion, classifier: 'mac'
+    implementation group: 'org.openjfx', name: 'javafx-base',     version: javaFxVersion, classifier: 'linux'
+    implementation group: 'org.openjfx', name: 'javafx-controls', version: javaFxVersion, classifier: 'win'
+    implementation group: 'org.openjfx', name: 'javafx-controls', version: javaFxVersion, classifier: 'mac'
+    implementation group: 'org.openjfx', name: 'javafx-controls', version: javaFxVersion, classifier: 'linux'
+    implementation group: 'org.openjfx', name: 'javafx-fxml',     version: javaFxVersion, classifier: 'win'
+    implementation group: 'org.openjfx', name: 'javafx-fxml',     version: javaFxVersion, classifier: 'mac'
+    implementation group: 'org.openjfx', name: 'javafx-fxml',     version: javaFxVersion, classifier: 'linux'
+    implementation group: 'org.openjfx', name: 'javafx-graphics', version: javaFxVersion, classifier: 'win'
+    implementation group: 'org.openjfx', name: 'javafx-graphics', version: javaFxVersion, classifier: 'mac'
+    implementation group: 'org.openjfx', name: 'javafx-graphics', version: javaFxVersion, classifier: 'linux'
+
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api',    version: '5.10.0'
+    testRuntimeOnly  group: 'org.junit.jupiter', name: 'junit-jupiter-engine',  version: '5.10.0'
+    testImplementation 'org.testfx:testfx-core:4.0.18'
+    testImplementation 'org.testfx:testfx-junit5:4.0.18'
+    testImplementation 'org.testfx:openjfx-monocle:17.0.10'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
 }
 
 test {
     useJUnitPlatform()
 
+    jvmArgs = [
+        '-Dtestfx.robot=glass',
+        '-Dtestfx.headless=true',
+        '-Dprism.order=sw',
+        '-Dprism.text=t2k',
+        '-Dglass.platform=Monocle',
+        '-Dmonocle.platform=Headless',
+        '-Djava.awt.headless=true',
+        '-Dmonocle.screenWidth=800',
+        '-Dmonocle.screenHeight=800',
+        '--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED',
+        '--add-opens=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED',
+        '--add-exports=javafx.graphics/com.sun.glass.ui.monocle=ALL-UNNAMED',
+        '--add-opens=javafx.graphics/com.sun.glass.ui.monocle=ALL-UNNAMED',
+        '--add-exports=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED',
+        '--add-opens=javafx.graphics/com.sun.javafx.util=ALL-UNNAMED',
+        '--add-exports=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED',
+        '--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED',
+        '--add-exports=javafx.base/com.sun.javafx.logging=ALL-UNNAMED',
+        '--add-opens=javafx.base/com.sun.javafx.logging=ALL-UNNAMED'
+    ]
+
     testLogging {
         events "passed", "skipped", "failed"
-
         showExceptions true
         exceptionFormat "full"
         showCauses true
@@ -28,7 +67,7 @@ test {
 }
 
 application {
-    mainClass.set("seedu.duke.Duke")
+    mainClass.set("Launcher")
 }
 
 shadowJar {
@@ -36,6 +75,6 @@ shadowJar {
     archiveClassifier = null
 }
 
-run{
+run {
     standardInput = System.in
 }

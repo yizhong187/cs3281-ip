@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(git:*)",
+      "Bash(./gradlew compileJava:*)",
+      "Bash(./gradlew run:*)",
+      "Bash(./gradlew test:*)",
+      "Bash(mkdir:*)",
+      "Bash(curl*)",
+      "Bash(python3:*)",
+      "Bash(jar tf:*)",
+      "Bash(jar xf:*)"
+    ]
+  }
+}
