@@ -42,19 +42,27 @@ public class Ui {
         System.out.println(LINE);
     }
 
+    /**
+     * Prints one or more lines, each prefixed with indentation, wrapped in separator lines.
+     *
+     * @param lines the lines to print
+     */
+    private void printBlock(String... lines) {
+        printLine();
+        for (String line : lines) {
+            System.out.println("     " + line);
+        }
+        printLine();
+    }
+
     /** Displays the welcome message. */
     public void showWelcome() {
-        printLine();
-        System.out.println("     Hello! I'm Aria");
-        System.out.println("     What can I do for you?");
-        printLine();
+        printBlock("Hello! I'm Aria", "What can I do for you?");
     }
 
     /** Displays the goodbye message. */
     public void showGoodbye() {
-        printLine();
-        System.out.println("     Bye. Hope to see you again soon!");
-        printLine();
+        printBlock("Bye. Hope to see you again soon!");
     }
 
     /**
@@ -63,9 +71,7 @@ public class Ui {
      * @param message the error message to display
      */
     public void showError(String message) {
-        printLine();
-        System.out.println("     " + message);
-        printLine();
+        printBlock(message);
     }
 
     /**
@@ -75,11 +81,11 @@ public class Ui {
      * @param size the new list size
      */
     public void showTaskAdded(Task task, int size) {
-        printLine();
-        System.out.println("     Got it. I've added this task:");
-        System.out.println("       " + task);
-        System.out.println("     Now you have " + size + " tasks in the list.");
-        printLine();
+        printBlock(
+                "Got it. I've added this task:",
+                "  " + task,
+                "Now you have " + size + " tasks in the list."
+        );
     }
 
     /**
@@ -89,11 +95,11 @@ public class Ui {
      * @param size the new list size
      */
     public void showTaskDeleted(Task task, int size) {
-        printLine();
-        System.out.println("     Noted. I've removed this task:");
-        System.out.println("       " + task);
-        System.out.println("     Now you have " + size + " tasks in the list.");
-        printLine();
+        printBlock(
+                "Noted. I've removed this task:",
+                "  " + task,
+                "Now you have " + size + " tasks in the list."
+        );
     }
 
     /**
@@ -102,10 +108,7 @@ public class Ui {
      * @param task the task that was marked
      */
     public void showTaskMarked(Task task) {
-        printLine();
-        System.out.println("     Nice! I've marked this task as done:");
-        System.out.println("       " + task);
-        printLine();
+        printBlock("Nice! I've marked this task as done:", "  " + task);
     }
 
     /**
@@ -114,10 +117,7 @@ public class Ui {
      * @param task the task that was unmarked
      */
     public void showTaskUnmarked(Task task) {
-        printLine();
-        System.out.println("     OK, I've marked this task as not done yet:");
-        System.out.println("       " + task);
-        printLine();
+        printBlock("OK, I've marked this task as not done yet:", "  " + task);
     }
 
     /**
@@ -150,18 +150,18 @@ public class Ui {
 
     /** Displays the list of available commands. */
     public void showHelp() {
-        printLine();
-        System.out.println("     Available commands:");
-        System.out.println("     list");
-        System.out.println("     todo <desc>");
-        System.out.println("     deadline <desc> /by <date>");
-        System.out.println("     event <desc> /from <time> /to <time>");
-        System.out.println("     mark <num>");
-        System.out.println("     unmark <num>");
-        System.out.println("     delete <num>");
-        System.out.println("     find <keyword>");
-        System.out.println("     bye");
-        printLine();
+        printBlock(
+                "Available commands:",
+                "list",
+                "todo <desc>",
+                "deadline <desc> /by <date>",
+                "event <desc> /from <time> /to <time>",
+                "mark <num>",
+                "unmark <num>",
+                "delete <num>",
+                "find <keyword>",
+                "bye"
+        );
     }
 
     /** Displays a warning that saved tasks could not be loaded. */
