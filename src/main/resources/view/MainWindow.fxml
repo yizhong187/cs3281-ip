@@ -13,7 +13,7 @@
             prefHeight="620.0" prefWidth="420.0"
             style="-fx-background-color: #f0f2f5;"
             xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="duke.ui.MainWindow">
+            fx:controller="aria.ui.MainWindow">
     <children>
 
         <!-- Header bar -->

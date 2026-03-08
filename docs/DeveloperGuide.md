@@ -20,23 +20,23 @@ Aria follows a layered MVC-style architecture:
 ```
 ┌──────────────────────────────────────────────────────────┐
 │                        UI Layer                          │
-│          duke.ui  (Ui, MainWindow, DialogBox)            │
+│          aria.ui  (Ui, MainWindow, DialogBox)            │
 └───────────────────────┬──────────────────────────────────┘
                         │ user input / output
 ┌───────────────────────▼──────────────────────────────────┐
 │                     Core Layer                           │
-│   duke  (Duke orchestrator, DukeException)               │
-│   duke.command  (Parser → Command → CommandType)         │
+│   aria  (Aria orchestrator, AriaException)               │
+│   aria.command  (Parser → Command → CommandType)         │
 └──────────────┬────────────────────────┬──────────────────┘
                │ reads/writes           │ reads/writes
 ┌──────────────▼──────┐   ┌────────────▼─────────────────┐
-│   duke.task         │   │   duke.storage               │
+│   aria.task         │   │   aria.storage               │
 │ Task hierarchy,     │   │ Storage (file I/O)            │
 │ TaskList            │   │                              │
 └─────────────────────┘   └──────────────────────────────┘
 ```
 
-**Duke** is the orchestrator: it initialises all components and drives the CLI
+**Aria** is the orchestrator: it initialises all components and drives the CLI
 event loop (`run()`) and GUI callback (`getResponse()`).
 
 ---
@@ -45,9 +45,9 @@ event loop (`run()`) and GUI callback (`getResponse()`).
 
 ```
 src/main/java/
-└── duke/
-    ├── Duke.java               # Application orchestrator
-    ├── DukeException.java      # Checked application exception
+└── aria/
+    ├── Aria.java               # Application orchestrator
+    ├── AriaException.java      # Checked application exception
     ├── Launcher.java           # JavaFX launch shim
     ├── command/
     │   ├── Command.java        # Executable command with parameters
@@ -77,7 +77,7 @@ src/main/java/
 
 ## Component Descriptions
 
-### Duke (Orchestrator)
+### Aria (Orchestrator)
 
 - Owns `TaskList`, `Storage`, `Ui`, and the undo `Deque<String>`.
 - **CLI mode**: `run()` loops on `ui.readCommand()`, parses, executes.
@@ -87,7 +87,7 @@ src/main/java/
 
 ### Parser
 
-- `parse(String input)` → `Command` or throws `DukeException`.
+- `parse(String input)` → `Command` or throws `AriaException`.
 - Resolves aliases via `resolveAlias()` (e.g. `t` → `todo`).
 - Extracts optional flags: `/priority`, `/every`, `/after` via regex helpers.
 - Returns immutable `Command` objects (fields set via setter methods for optional flags).
@@ -171,7 +171,7 @@ Command (type + params)
 ### Undo Mechanism
 
 Before each mutating command, `storage.getSnapshot()` pushes the current file
-contents onto a `Deque<String>` in Duke. The `undo` command pops the last
+contents onto a `Deque<String>` in Aria. The `undo` command pops the last
 snapshot and calls `storage.restoreFromSnapshot(snapshot)`, which rewrites the
 file and reloads the task list.
 
@@ -230,9 +230,9 @@ delegates to the Natty library. The raw string is always stored in the file; the
 
 ## Testing
 
-Tests are in `src/test/java/duke/`.
+Tests are in `src/test/java/aria/`.
 
-- **DukeTest** — integration tests via `Duke.getResponse()`; covers all major command flows.
+- **AriaTest** — integration tests via `Aria.getResponse()`; covers all major command flows.
 - **ParserTest** — unit tests for `Parser.parse()`; covers valid inputs and error cases.
 - **StorageTest** — unit tests for `Storage.load()` and `Storage.save()`; covers round-trips,
   malformed lines, and edge cases.
@@ -242,4 +242,4 @@ Run all tests: `./gradlew test`
 
 Run checkstyle: `./gradlew checkstyleMain`
 
-Build JAR: `./gradlew shadowJar` → produces `build/libs/duke.jar`
+Build JAR: `./gradlew shadowJar` → produces `build/libs/aria.jar`

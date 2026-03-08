@@ -10,13 +10,13 @@ fast and from the command line (or GUI).
 ## Quick Start
 
 1. Ensure you have Java 17 installed.
-2. Download `duke.jar` from the latest release.
-3. Run: `java -jar duke.jar`
+2. Download `aria.jar` from the latest release.
+3. Run: `java -jar aria.jar`
 4. Type commands in the chat box and press **Send** or **Enter**.
 
 Optional: specify a custom data file path:
 ```
-java -jar duke.jar /path/to/my-tasks.txt
+java -jar aria.jar /path/to/my-tasks.txt
 ```
 
 ---
@@ -307,7 +307,7 @@ Commands are case-insensitive.
 
 ## Data Storage
 
-- Tasks: automatically saved to `./data/duke.txt` after every change.
+- Tasks: automatically saved to `./data/aria.txt` after every change.
 - Archives: stored in `./data/archive.txt`.
 - Data is loaded back automatically on the next launch.
 - Corrupted or unrecognised lines are silently skipped.
