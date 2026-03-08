@@ -50,7 +50,7 @@ public class DialogBox extends HBox {
     }
 
     /**
-     * Creates a dialog box for the user (avatar on the right, blue background).
+     * Creates a dialog box for the user (avatar right, blue bubble, right-aligned).
      *
      * @param text the user's message
      * @param img  the user's avatar image
@@ -59,13 +59,18 @@ public class DialogBox extends HBox {
     public static DialogBox getUserDialog(String text, Image img) {
         var db = new DialogBox(text, img);
         db.dialog.setStyle(
-                "-fx-background-color: #5b8dee; -fx-text-fill: white; "
-                + "-fx-background-radius: 12; -fx-padding: 8 12 8 12;");
+                "-fx-background-color: #5b8dee;"
+                + "-fx-text-fill: white;"
+                + "-fx-background-radius: 16 4 16 16;"
+                + "-fx-padding: 10 14 10 14;"
+                + "-fx-font-size: 13;");
+        db.dialog.setEffect(new javafx.scene.effect.DropShadow(4, 0, 2,
+                javafx.scene.paint.Color.rgb(0, 0, 0, 0.12)));
         return db;
     }
 
     /**
-     * Creates a dialog box for Aria (avatar on the left, grey background).
+     * Creates a dialog box for Aria (avatar left, white bubble, left-aligned).
      *
      * @param text the bot's response message
      * @param img  the bot's avatar image
@@ -74,8 +79,13 @@ public class DialogBox extends HBox {
     public static DialogBox getDukeDialog(String text, Image img) {
         var db = new DialogBox(text, img);
         db.dialog.setStyle(
-                "-fx-background-color: #e8e8e8; -fx-text-fill: #222; "
-                + "-fx-background-radius: 12; -fx-padding: 8 12 8 12;");
+                "-fx-background-color: #ffffff;"
+                + "-fx-text-fill: #2c3e50;"
+                + "-fx-background-radius: 4 16 16 16;"
+                + "-fx-padding: 10 14 10 14;"
+                + "-fx-font-size: 13;");
+        db.dialog.setEffect(new javafx.scene.effect.DropShadow(4, 0, 2,
+                javafx.scene.paint.Color.rgb(0, 0, 0, 0.08)));
         db.flip();
         return db;
     }

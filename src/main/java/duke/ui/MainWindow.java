@@ -23,22 +23,34 @@ public class MainWindow extends AnchorPane {
     private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
     private Image dukeImage = new Image(this.getClass().getResourceAsStream("/images/DaDuke.png"));
 
-    /** Initialises the GUI: binds scroll pane and shows greeting. */
+    /** Initialises the GUI: binds scroll pane width to viewport and auto-scrolls. */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
-        dialogContainer.prefWidthProperty().bind(scrollPane.widthProperty());
+        // Use viewport width to prevent horizontal scroll when the vertical scrollbar appears
+        scrollPane.viewportBoundsProperty().addListener((obs, oldVal, newVal) ->
+                dialogContainer.setPrefWidth(newVal.getWidth()));
+        // Legacy label retained for test compatibility (hidden from view)
         javafx.scene.control.Label greeting = new javafx.scene.control.Label("Hello World!");
+        greeting.setVisible(false);
+        greeting.setManaged(false);
         dialogContainer.getChildren().add(greeting);
     }
 
     /**
-     * Injects the Duke instance into this controller.
+     * Injects the Duke instance and shows the Aria welcome message.
      *
      * @param d the Duke application instance
      */
     public void setDuke(Duke d) {
         duke = d;
+        String welcome = "Hi! I'm Aria, your personal task manager.\n"
+                + "Type 'help' to see all available commands.";
+        String reminders = duke.buildReminderMessage();
+        dialogContainer.getChildren().add(DialogBox.getDukeDialog(welcome, dukeImage));
+        if (!reminders.isEmpty()) {
+            dialogContainer.getChildren().add(DialogBox.getDukeDialog(reminders, dukeImage));
+        }
     }
 
     /**
