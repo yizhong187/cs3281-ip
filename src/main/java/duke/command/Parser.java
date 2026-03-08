@@ -193,6 +193,9 @@ public class Parser {
         case "note":
             return new Command(CommandType.NOTE,
                     parts.length > 1 ? parts[1].trim() : "list", null, null, null);
+        case "contact":
+            return new Command(CommandType.CONTACT,
+                    parts.length > 1 ? parts[1].trim() : "list", null, null, null);
         case "help":
             return new Command(CommandType.HELP, null, null, null, null);
         default:

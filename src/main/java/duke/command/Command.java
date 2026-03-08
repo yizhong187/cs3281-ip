@@ -625,6 +625,18 @@ public class Command {
                     (store, args) -> store.add(args),
                     (fields) -> "  " + fields[0],
                     "note add TEXT | note list | note delete INDEX");
+        case CONTACT:
+            return handleEntity("./data/contacts.txt", description,
+                    new String[]{"Name", "Phone", "Email"},
+                    (store, args) -> {
+                        String name = args.replaceAll("/phone.*", "").replaceAll("/email.*", "").trim();
+                        String phone = extractField(args, "phone");
+                        String email = extractField(args, "email");
+                        store.add(name, phone, email);
+                    },
+                    (fields) -> "  " + get(fields, 0) + " | Phone: " + get(fields, 1)
+                            + " | Email: " + get(fields, 2),
+                    "contact add NAME /phone NUM /email EMAIL | contact list | contact delete INDEX");
         case BYE:
             return "Bye. Hope to see you again soon!";
         default:
