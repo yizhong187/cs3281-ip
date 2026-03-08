@@ -679,6 +679,16 @@ public class Command {
                     (fields) -> "  " + get(fields, 0) + " | " + get(fields, 1)
                             + " | " + get(fields, 2),
                     "client add NAME /contact INFO /service SERVICE | client list | client delete INDEX");
+        case ITEM:
+            return handleEntity("./data/items.txt", description,
+                    new String[]{"Name", "Qty", "Price"},
+                    (store, args) -> {
+                        String name = args.replaceAll("/qty.*", "").replaceAll("/price.*", "").trim();
+                        store.add(name, extractField(args, "qty"), extractField(args, "price"));
+                    },
+                    (fields) -> "  " + get(fields, 0) + " | Qty: " + get(fields, 1)
+                            + " | $" + get(fields, 2),
+                    "item add NAME /qty NUM /price PRICE | item list | item restock INDEX /qty NUM");
         case BYE:
             return "Bye. Hope to see you again soon!";
         default:
