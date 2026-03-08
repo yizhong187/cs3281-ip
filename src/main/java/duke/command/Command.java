@@ -667,6 +667,8 @@ public class Command {
                     (fields) -> "  " + get(fields, 0) + " | " + get(fields, 2)
                             + "/5 | " + get(fields, 1),
                     "place add NAME /review TEXT /rating NUM | place list | place delete INDEX");
+        case TRIVIA:
+            return handleTrivia(description);
         case BYE:
             return "Bye. Hope to see you again soon!";
         default:
@@ -727,6 +729,60 @@ public class Command {
         }
         default:
             throw new DukeException("OOPS!!! Usage: " + usage);
+        }
+    }
+
+    private String handleTrivia(String desc) throws DukeException {
+        duke.entity.SimpleEntityStore store = new duke.entity.SimpleEntityStore("./data/trivia.txt");
+        String[] parts = desc.split("\\s+", 2);
+        String sub = parts[0].toLowerCase();
+        String args = parts.length > 1 ? parts[1] : "";
+        switch (sub) {
+        case "add": {
+            String question = args.replaceAll("/answer.*", "").trim();
+            String answer = extractField(args, "answer");
+            if (question.isEmpty() || answer.isEmpty()) {
+                throw new DukeException("OOPS!!! Usage: trivia add QUESTION /answer ANS");
+            }
+            store.add(question, answer);
+            return "Trivia added. " + store.size() + " question(s) stored.";
+        }
+        case "list": {
+            if (store.size() == 0) {
+                return "No trivia yet.";
+            }
+            StringBuilder sb = new StringBuilder("Trivia questions:");
+            java.util.List<String[]> all = store.getAll();
+            for (int i = 0; i < all.size(); i++) {
+                sb.append("\n").append(i + 1).append(". Q: ").append(get(all.get(i), 0));
+            }
+            return sb.toString();
+        }
+        case "quiz": {
+            if (store.size() == 0) {
+                return "No trivia to quiz on yet.";
+            }
+            int ridx = (int) (Math.random() * store.size());
+            String[] entry = store.getAll().get(ridx);
+            return "Quiz! Q: " + get(entry, 0) + "\n(Use 'trivia answer " + get(entry, 1) + "' to reveal)";
+        }
+        case "delete": {
+            int idx;
+            try {
+                idx = Integer.parseInt(args.trim()) - 1;
+            } catch (NumberFormatException e) {
+                throw new DukeException("OOPS!!! Please provide a valid index.");
+            }
+            if (idx < 0 || idx >= store.size()) {
+                throw new DukeException("OOPS!!! Entry " + (idx + 1) + " does not exist.");
+            }
+            String[] removed = store.getAll().get(idx);
+            store.remove(idx);
+            return "Removed trivia: " + get(removed, 0);
+        }
+        default:
+            throw new DukeException(
+                    "OOPS!!! Usage: trivia add QUESTION /answer ANS | trivia list | trivia quiz");
         }
     }
 

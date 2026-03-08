@@ -205,6 +205,9 @@ public class Parser {
         case "place":
             return new Command(CommandType.PLACE,
                     parts.length > 1 ? parts[1].trim() : "list", null, null, null);
+        case "trivia":
+            return new Command(CommandType.TRIVIA,
+                    parts.length > 1 ? parts[1].trim() : "list", null, null, null);
         case "help":
             return new Command(CommandType.HELP, null, null, null, null);
         default:
