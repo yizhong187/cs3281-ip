@@ -669,6 +669,16 @@ public class Command {
                     "place add NAME /review TEXT /rating NUM | place list | place delete INDEX");
         case TRIVIA:
             return handleTrivia(description);
+        case CLIENT:
+            return handleEntity("./data/clients.txt", description,
+                    new String[]{"Name", "Contact", "Service"},
+                    (store, args) -> {
+                        String name = args.replaceAll("/contact.*", "").replaceAll("/service.*", "").trim();
+                        store.add(name, extractField(args, "contact"), extractField(args, "service"));
+                    },
+                    (fields) -> "  " + get(fields, 0) + " | " + get(fields, 1)
+                            + " | " + get(fields, 2),
+                    "client add NAME /contact INFO /service SERVICE | client list | client delete INDEX");
         case BYE:
             return "Bye. Hope to see you again soon!";
         default:
