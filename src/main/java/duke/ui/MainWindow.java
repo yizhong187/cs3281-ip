@@ -23,10 +23,11 @@ public class MainWindow extends AnchorPane {
     private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
     private Image dukeImage = new Image(this.getClass().getResourceAsStream("/images/DaDuke.png"));
 
-    /** Initialises the GUI: binds scroll pane width to viewport and auto-scrolls. */
+    /** Initialises the GUI: auto-scrolls to bottom on new content and binds width to viewport. */
     @FXML
     public void initialize() {
-        scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+        dialogContainer.heightProperty().addListener((obs, oldVal, newVal) ->
+                scrollPane.setVvalue(1.0));
         // Use viewport width to prevent horizontal scroll when the vertical scrollbar appears
         scrollPane.viewportBoundsProperty().addListener((obs, oldVal, newVal) ->
                 dialogContainer.setPrefWidth(newVal.getWidth()));
