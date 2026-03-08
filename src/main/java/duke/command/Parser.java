@@ -199,6 +199,9 @@ public class Parser {
         case "expense":
             return new Command(CommandType.EXPENSE,
                     parts.length > 1 ? parts[1].trim() : "list", null, null, null);
+        case "loan":
+            return new Command(CommandType.LOAN,
+                    parts.length > 1 ? parts[1].trim() : "list", null, null, null);
         case "help":
             return new Command(CommandType.HELP, null, null, null, null);
         default:

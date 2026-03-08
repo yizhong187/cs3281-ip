@@ -647,6 +647,16 @@ public class Command {
                     (fields) -> "  " + get(fields, 0) + " | $" + get(fields, 1)
                             + " | " + get(fields, 2),
                     "expense add DESC /amount AMT /category CAT | expense list | expense delete INDEX");
+        case LOAN:
+            return handleEntity("./data/loans.txt", description,
+                    new String[]{"Name", "Amount", "Direction"},
+                    (store, args) -> {
+                        String name = args.replaceAll("/amount.*", "").replaceAll("/dir.*", "").trim();
+                        store.add(name, extractField(args, "amount"), extractField(args, "dir"));
+                    },
+                    (fields) -> "  " + get(fields, 0) + " | $" + get(fields, 1)
+                            + " (" + get(fields, 2) + ")",
+                    "loan add NAME /amount AMT /dir lent|borrowed | loan list | loan delete INDEX");
         case BYE:
             return "Bye. Hope to see you again soon!";
         default:
