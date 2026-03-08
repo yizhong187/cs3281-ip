@@ -190,6 +190,9 @@ public class Parser {
                 throw new DukeException("OOPS!!! Please provide a date for schedule.");
             }
             return new Command(CommandType.SCHEDULE, parts[1].trim(), null, null, null);
+        case "note":
+            return new Command(CommandType.NOTE,
+                    parts.length > 1 ? parts[1].trim() : "list", null, null, null);
         case "help":
             return new Command(CommandType.HELP, null, null, null, null);
         default:

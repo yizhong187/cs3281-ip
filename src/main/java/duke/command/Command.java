@@ -619,11 +619,83 @@ public class Command {
                     .collect(Collectors.joining("\n"));
             return "Tasks on " + date + ":\n" + lines;
         }
+        case NOTE:
+            return handleEntity("./data/notes.txt", description,
+                    new String[]{"Note"},
+                    (store, args) -> store.add(args),
+                    (fields) -> "  " + fields[0],
+                    "note add TEXT | note list | note delete INDEX");
         case BYE:
             return "Bye. Hope to see you again soon!";
         default:
             return "";
         }
+    }
+
+    @FunctionalInterface
+    private interface EntityAdder {
+        void add(duke.entity.SimpleEntityStore store, String args) throws DukeException;
+    }
+
+    @FunctionalInterface
+    private interface EntryFormatter {
+        String format(String[] fields);
+    }
+
+    private String handleEntity(String storePath, String desc, String[] fieldNames,
+            EntityAdder adder, EntryFormatter formatter, String usage) throws DukeException {
+        duke.entity.SimpleEntityStore store = new duke.entity.SimpleEntityStore(storePath);
+        String[] parts = desc.split("\\s+", 2);
+        String sub = parts[0].toLowerCase();
+        String args = parts.length > 1 ? parts[1] : "";
+        switch (sub) {
+        case "add":
+            if (args.isEmpty()) {
+                throw new DukeException("OOPS!!! Usage: " + usage);
+            }
+            adder.add(store, args);
+            return "Added. " + store.size() + " entr" + (store.size() == 1 ? "y" : "ies") + " stored.";
+        case "list": {
+            if (store.size() == 0) {
+                return "No entries yet.";
+            }
+            StringBuilder sb = new StringBuilder("Entries:");
+            java.util.List<String[]> all = store.getAll();
+            for (int i = 0; i < all.size(); i++) {
+                sb.append("\n").append(i + 1).append(".").append(formatter.format(all.get(i)));
+            }
+            return sb.toString();
+        }
+        case "delete": {
+            if (args.isEmpty()) {
+                throw new DukeException("OOPS!!! Usage: " + usage);
+            }
+            int idx;
+            try {
+                idx = Integer.parseInt(args.trim()) - 1;
+            } catch (NumberFormatException e) {
+                throw new DukeException("OOPS!!! Please provide a valid index.");
+            }
+            if (idx < 0 || idx >= store.size()) {
+                throw new DukeException("OOPS!!! Entry " + (idx + 1) + " does not exist.");
+            }
+            String[] removed = store.getAll().get(idx);
+            store.remove(idx);
+            return "Removed: " + formatter.format(removed);
+        }
+        default:
+            throw new DukeException("OOPS!!! Usage: " + usage);
+        }
+    }
+
+    private static String extractField(String args, String fieldName) {
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("/" + fieldName + "\\s+(.+?)(?=\\s+/|$)").matcher(args);
+        return m.find() ? m.group(1).trim() : "";
+    }
+
+    private static String get(String[] arr, int i) {
+        return (arr != null && i < arr.length) ? arr[i] : "";
     }
 
     /**
