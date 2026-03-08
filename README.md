@@ -1,26 +1,74 @@
-# Duke project template
+# Aria — Your Personal Task Manager
 
-This is a project template for a greenfield Java project. It's named after the Java mascot _Duke_. Given below are instructions on how to use it.
+> "Stay organised. Stay ahead."
 
-## Setting up in Intellij
+Aria is a fast, keyboard-driven task manager that lives in your terminal or as a sleek chat-style GUI. Add tasks, set deadlines, track events, manage contacts and expenses — all with simple, natural commands.
 
-Prerequisites: JDK 17, update Intellij to the most recent version.
+---
 
-1. Open Intellij (if you are not in the welcome screen, click `File` > `Close Project` to close the existing project first)
-1. Open the project into Intellij as follows:
-   1. Click `Open`.
-   1. Select the project directory, and click `OK`.
-   1. If there are any further prompts, accept the defaults.
-1. Configure the project to use **JDK 17** (not other versions) as explained in [here](https://www.jetbrains.com/help/idea/sdk.html#set-up-jdk).<br>
-   In the same dialog, set the **Project language level** field to the `SDK default` option.
-1. After that, locate the `src/main/java/Duke.java` file, right-click it, and choose `Run Duke.main()` (if the code editor is showing compile errors, try restarting the IDE). If the setup is correct, you should see something like the below as the output:
-   ```
-   Hello from
-    ____        _        
-   |  _ \ _   _| | _____ 
-   | | | | | | | |/ / _ \
-   | |_| | |_| |   <  __/
-   |____/ \__,_|_|\_\___|
-   ```
+## Features at a Glance
 
-**Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+- **Tasks** — todos, deadlines, events, fixed-duration tasks, and do-within-period tasks
+- **Smart dates** — natural language parsing ("next Monday", "tomorrow", "Dec 25")
+- **Priority levels** — HIGH / MEDIUM / LOW, sortable
+- **Tags** — flexible `#tag` system with tag-based search
+- **Reminders** — upcoming deadlines shown on every launch
+- **Undo** — instantly reverse your last action
+- **Archives** — move completed tasks out of your main list
+- **Statistics** — see your completion rate at a glance
+- **Entity management** — notes, contacts, expenses, loans, places, trivia, clients, and merchandise
+- **Command aliases** — `t`, `d`, `e`, `ls`, `rm`, `q` for speed
+
+---
+
+## Quick Start
+
+**Prerequisites:** Java 17+
+
+```
+java -jar aria.jar
+```
+
+Or specify a custom data file:
+```
+java -jar aria.jar /path/to/my-tasks.txt
+```
+
+---
+
+## Setting Up in IntelliJ IDEA
+
+1. Open IntelliJ. If a project is already open, go to `File` > `Close Project`.
+2. Click **Open** and select the project directory.
+3. Set the project SDK to **JDK 17** (`File` > `Project Structure` > `SDKs`).
+4. Set **Project language level** to `SDK default`.
+5. Run `./gradlew run` or locate `src/main/java/aria/Launcher.java` and run `Launcher.main()`.
+
+---
+
+## Building
+
+```bash
+# Run tests
+./gradlew test
+
+# Run the app
+./gradlew run
+
+# Build a standalone JAR
+./gradlew shadowJar
+# Output: build/libs/aria.jar
+```
+
+---
+
+## Documentation
+
+- [User Guide](docs/README.md) — full command reference with examples
+- [Developer Guide](docs/DeveloperGuide.md) — architecture, design decisions, and testing
+
+---
+
+## Data
+
+Tasks are saved automatically to `./data/aria.txt` after every change. Archived tasks go to `./data/archive.txt`. Both files are plain text and human-readable.
