@@ -39,6 +39,11 @@ public class DialogBox extends HBox {
         double r = displayPicture.getFitWidth() / 2;
         Circle clip = new Circle(r, r, r);
         displayPicture.setClip(clip);
+
+        // Stretch HBox to full container width, then cap label at HBox minus avatar+gaps
+        setMaxWidth(Double.MAX_VALUE);
+        // avatar(40) + spacing(10) + left+right padding(24) + scroll gutter buffer(4) = 78
+        dialog.maxWidthProperty().bind(this.widthProperty().subtract(78));
     }
 
     /** Flips the dialog box so that the avatar is on the left and text on the right. */

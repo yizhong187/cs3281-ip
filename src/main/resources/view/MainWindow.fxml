@@ -32,9 +32,9 @@
                     AnchorPane.topAnchor="52.0" AnchorPane.leftAnchor="0.0"
                     AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="56.0">
             <content>
-                <VBox fx:id="dialogContainer" spacing="2.0"
+                <VBox fx:id="dialogContainer" spacing="8.0"
                       style="-fx-background-color: #f0f2f5;">
-                    <padding><Insets top="12.0" bottom="8.0" left="0.0" right="0.0"/></padding>
+                    <padding><Insets top="12.0" bottom="12.0" left="0.0" right="0.0"/></padding>
                 </VBox>
             </content>
         </ScrollPane>

@@ -10,7 +10,7 @@
          xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <Label fx:id="dialog" text="Label" wrapText="true" minHeight="-Infinity"
-               maxWidth="290.0" HBox.hgrow="ALWAYS"/>
+               HBox.hgrow="ALWAYS"/>
         <ImageView fx:id="displayPicture" fitHeight="40.0" fitWidth="40.0"
                    pickOnBounds="true" preserveRatio="true" HBox.hgrow="NEVER"/>
     </children>
