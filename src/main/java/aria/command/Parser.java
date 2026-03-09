@@ -7,6 +7,9 @@ import aria.task.Priority;
  * Parses raw user input strings into {@link Command} objects.
  */
 public class Parser {
+    private static final String DATE_HINT =
+            "Date formats: tomorrow | next Monday | Dec 25 2024 | 2024-12-25";
+
     /**
      * Parses the given user input and returns the corresponding {@link Command}.
      *
@@ -65,7 +68,8 @@ public class Parser {
             String[] deadlineParts = deadlineArgs.split(" /by ", 2);
             if (deadlineParts.length < 2) {
                 throw new AriaException(
-                        "OOPS!!! A deadline needs a /by date. Usage: deadline <desc> /by <date>");
+                        "OOPS!!! A deadline needs a /by date. Usage: deadline <desc> /by <date>\n"
+                                + DATE_HINT);
             }
             Command deadlineCmd = new Command(CommandType.DEADLINE, deadlineParts[0].trim(),
                     deadlineParts[1].trim(), null, null);
@@ -81,12 +85,12 @@ public class Parser {
             String[] eventParts = eventArgs.split(" /from ", 2);
             if (eventParts.length < 2) {
                 throw new AriaException("OOPS!!! An event needs /from and /to times. "
-                        + "Usage: event <desc> /from <time> /to <time>");
+                        + "Usage: event <desc> /from <date> /to <date>\n" + DATE_HINT);
             }
             String[] timeParts = eventParts[1].split(" /to ", 2);
             if (timeParts.length < 2) {
                 throw new AriaException("OOPS!!! An event needs a /to time. "
-                        + "Usage: event <desc> /from <time> /to <time>");
+                        + "Usage: event <desc> /from <date> /to <date>\n" + DATE_HINT);
             }
             Command eventCmd = new Command(CommandType.EVENT, eventParts[0].trim(),
                     null, timeParts[0].trim(), timeParts[1].trim());
@@ -95,7 +99,7 @@ public class Parser {
         }
         case "freetime":
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
-                throw new AriaException("OOPS!!! Usage: freetime <date> <duration_hours>");
+                throw new AriaException("OOPS!!! Usage: freetime <date> <duration_hours>\n" + DATE_HINT);
             }
             return new Command(CommandType.FREETIME, parts[1].trim(), null, null, null);
         case "fixed": {
@@ -113,19 +117,19 @@ public class Parser {
         case "within": {
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
                 throw new AriaException(
-                        "OOPS!!! Usage: within <desc> /from <date> /to <date>");
+                        "OOPS!!! Usage: within <desc> /from <date> /to <date>\n" + DATE_HINT);
             }
             String[] withinParts = parts[1].split(" /from ", 2);
             if (withinParts.length < 2) {
                 throw new AriaException(
                         "OOPS!!! A within task needs /from and /to. "
-                        + "Usage: within <desc> /from <date> /to <date>");
+                        + "Usage: within <desc> /from <date> /to <date>\n" + DATE_HINT);
             }
             String[] withinTimes = withinParts[1].split(" /to ", 2);
             if (withinTimes.length < 2) {
                 throw new AriaException(
                         "OOPS!!! A within task needs /to. "
-                        + "Usage: within <desc> /from <date> /to <date>");
+                        + "Usage: within <desc> /from <date> /to <date>\n" + DATE_HINT);
             }
             return new Command(CommandType.WITHIN, withinParts[0].trim(),
                     null, withinTimes[0].trim(), withinTimes[1].trim());
@@ -182,12 +186,12 @@ public class Parser {
             return new Command(CommandType.UNDO, null, null, null, null);
         case "snooze":
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
-                throw new AriaException("OOPS!!! Usage: snooze <num> <newdate>");
+                throw new AriaException("OOPS!!! Usage: snooze <num> <newdate>\n" + DATE_HINT);
             }
             return new Command(CommandType.SNOOZE, parts[1].trim(), null, null, null);
         case "schedule":
             if (parts.length < 2 || parts[1].trim().isEmpty()) {
-                throw new AriaException("OOPS!!! Please provide a date for schedule.");
+                throw new AriaException("OOPS!!! Usage: schedule <date>\n" + DATE_HINT);
             }
             return new Command(CommandType.SCHEDULE, parts[1].trim(), null, null, null);
         case "note":

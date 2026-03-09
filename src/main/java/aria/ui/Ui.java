@@ -155,12 +155,20 @@ public class Ui {
                 "list",
                 "todo <desc>",
                 "deadline <desc> /by <date>",
-                "event <desc> /from <time> /to <time>",
+                "event <desc> /from <date> /to <date>",
+                "schedule <date>",
+                "snooze <num> <newdate>",
                 "mark <num>",
                 "unmark <num>",
                 "delete <num>",
                 "find <keyword>",
-                "bye"
+                "bye",
+                "",
+                "Date formats accepted (e.g. for /by, /from, /to, schedule, snooze):",
+                "  Natural language : tomorrow, next Monday, next week",
+                "  Month name       : Dec 25 2024, Jan 1",
+                "  ISO date         : 2024-12-25",
+                "Dates are displayed as: MMM dd yyyy (e.g. Dec 25 2024)"
         );
     }
 

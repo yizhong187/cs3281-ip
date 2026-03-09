@@ -21,6 +21,9 @@ import java.util.stream.IntStream;
  * Supports both CLI execution (via {@link #execute}) and GUI output (via {@link #getOutput}).
  */
 public class Command {
+    private static final String DATE_HINT =
+            "Date formats: tomorrow | next Monday | Dec 25 2024 | 2024-12-25";
+
     private CommandType type;
     private String description;
     private String by;
@@ -552,13 +555,21 @@ public class Command {
                     + "  list\n"
                     + "  todo <desc> [/priority high|medium|low] [/after INDEX]\n"
                     + "  deadline <desc> /by <date> [/priority high|medium|low]\n"
-                    + "  event <desc> /from <time> /to <time> [/priority high|medium|low]\n"
+                    + "  event <desc> /from <date> /to <date> [/priority high|medium|low]\n"
+                    + "  schedule <date>\n"
+                    + "  snooze <num> <newdate>\n"
                     + "  mark <num>\n"
                     + "  unmark <num>\n"
                     + "  delete <num>\n"
                     + "  find <keyword>\n"
                     + "  sort name|priority|date\n"
-                    + "  bye";
+                    + "  bye\n"
+                    + "\n"
+                    + "Date formats accepted (e.g. for /by, /from, /to, schedule, snooze):\n"
+                    + "  Natural language : tomorrow, next Monday, next week\n"
+                    + "  Month name       : Dec 25 2024, Jan 1\n"
+                    + "  ISO date         : 2024-12-25\n"
+                    + "Dates are displayed as: MMM dd yyyy (e.g. Dec 25 2024)";
         case STATS: {
             long done = IntStream.range(0, taskList.size())
                     .filter(i -> taskList.get(i).isDone()).count();
@@ -582,7 +593,7 @@ public class Command {
             String[] snoozeParts = description.split("\\s+", 2);
             int index = parseIndex(snoozeParts[0], taskList);
             if (snoozeParts.length < 2) {
-                throw new AriaException("OOPS!!! Usage: snooze <num> <newdate>");
+                throw new AriaException("OOPS!!! Usage: snooze <num> <newdate>\n" + DATE_HINT);
             }
             String newDate = snoozeParts[1];
             Task task = taskList.get(index);
