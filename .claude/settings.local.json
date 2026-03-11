@@ -19,7 +19,10 @@
       "Bash(./gradlew checkstyleMain checkstyleTest)",
       "Bash(./gradlew checkstyleMain test)",
       "Bash(./gradlew shadowJar)",
-      "Bash(ls -lh build/libs/*.jar)"
+      "Bash(ls -lh build/libs/*.jar)",
+      "Bash(for hash in b78a44b fffd8a1 30682db 59318f5 55cb9fd f97da77 252e732 e93fa91)",
+      "Bash(do echo \"=== $hash ===\" git diff-tree --stat \"$hash^\" \"$hash\")",
+      "Bash(done)"
     ]
   }
 }
