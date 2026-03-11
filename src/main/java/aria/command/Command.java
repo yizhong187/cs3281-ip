@@ -838,7 +838,10 @@ public class Command {
      */
     private List<Integer> parseIndices(String indexStr, TaskList taskList) throws AriaException {
         TreeSet<Integer> indices = new TreeSet<>();
-        for (String token : indexStr.trim().split("\\s+")) {
+        for (String token : indexStr.trim().replaceAll(",", " ").split("\\s+")) {
+            if (token.equalsIgnoreCase("and") || token.equalsIgnoreCase("or") || token.isEmpty()) {
+                continue;
+            }
             if (token.contains("-")) {
                 String[] bounds = token.split("-", 2);
                 try {
