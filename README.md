@@ -2,12 +2,13 @@
 
 > "Stay organised. Stay ahead."
 
-Aria is a fast, keyboard-driven task manager that lives in your terminal or as a sleek chat-style GUI. Add tasks, set deadlines, track events, manage contacts and expenses — all with simple, natural commands.
+Aria is a fast, keyboard-driven task manager that lives in your terminal or as a sleek chat-style GUI. Add tasks, set deadlines, track events, manage contacts and expenses — all with simple, natural commands or plain English.
 
 ---
 
 ## Features at a Glance
 
+- **Natural language input** — just describe what you want; Aria's built-in LLM figures out the command
 - **Tasks** — todos, deadlines, events, fixed-duration tasks, and do-within-period tasks
 - **Smart dates** — natural language parsing ("next Monday", "tomorrow", "Dec 25")
 - **Priority levels** — HIGH / MEDIUM / LOW, sortable
@@ -23,7 +24,7 @@ Aria is a fast, keyboard-driven task manager that lives in your terminal or as a
 
 ## Quick Start
 
-**Prerequisites:** Java 17+
+**Prerequisites:** Java 17+, and for NLP mode: install `llama-server` ([see instructions below](#nlp-mode-prerequisites))
 
 ```
 java -jar aria.jar
@@ -33,6 +34,41 @@ Or specify a custom data file:
 ```
 java -jar aria.jar /path/to/my-tasks.txt
 ```
+
+The standalone JAR (~520 MB) includes the bundled LLM model. On first launch it extracts the model to `./data/model-cache/` and starts a local inference server — no internet connection required.
+
+> **NLP mode is optional.** If `llama-server` is not installed, Aria falls back to exact command parsing and all core features continue to work normally.
+
+---
+
+## Natural Language Mode
+
+Once the model loads, you can type in plain English instead of exact commands:
+
+| You type | Aria does |
+|---|---|
+| `remind me to call the dentist` | `todo call the dentist` |
+| `finish the report by next Friday` | `deadline finish the report /by next Friday` |
+| `meeting with John tmr 9am to 11am` | `event meeting with John /from tomorrow 9am /to tomorrow 11am` |
+| `remove task 3` | `delete 3` (with confirmation) |
+| `hello` | friendly greeting |
+| `tell me a joke` | a productivity-themed joke |
+
+Aria shows what it interpreted so you always know what was understood.
+
+---
+
+## NLP Mode Prerequisites
+
+Install `llama-server` for your platform:
+
+| Platform | Command |
+|---|---|
+| macOS | `brew install llama.cpp` |
+| Linux (Debian/Ubuntu) | `sudo apt install llama-cpp` |
+| Windows / other | Download a pre-built binary from the [llama.cpp releases page](https://github.com/ggerganov/llama.cpp/releases) and add it to your `PATH` |
+
+> **NLP mode is optional.** If `llama-server` is not on your `PATH`, Aria still works normally for all exact commands — type `help` to see them.
 
 ---
 
@@ -55,7 +91,7 @@ java -jar aria.jar /path/to/my-tasks.txt
 # Run the app
 ./gradlew run
 
-# Build a standalone JAR
+# Build a standalone JAR (includes the ~512 MB LLM model)
 ./gradlew shadowJar
 # Output: build/libs/aria.jar
 ```

@@ -1,7 +1,8 @@
 # Aria User Guide
 
 Aria is a personal task manager chatbot that helps you track todos, deadlines, events, and more —
-fast and from the command line (or GUI).
+fast and from the command line (or GUI). You can type exact commands or just describe what you
+want in plain English and let Aria figure it out.
 
 ![Aria Screenshot](screenshot.png)
 
@@ -11,13 +12,72 @@ fast and from the command line (or GUI).
 
 1. Ensure you have Java 17 installed.
 2. Download `aria.jar` from the latest release.
-3. Run: `java -jar aria.jar`
-4. Type commands in the chat box and press **Send** or **Enter**.
+3. *(Optional, for natural language mode)* Install `llama-server` — see [NLP prerequisites](#nlp-mode-prerequisites) below
+4. Run: `java -jar aria.jar`
+5. Type commands (or plain English) in the chat box and press **Send** or **Enter**.
 
 Optional: specify a custom data file path:
 ```
 java -jar aria.jar /path/to/my-tasks.txt
 ```
+
+---
+
+## Natural Language Mode
+
+Aria includes a built-in local LLM (Qwen3.5 0.8B, runs fully offline) that translates plain
+English into commands. The model is bundled inside `aria.jar` and extracted to
+`./data/model-cache/` on first launch.
+
+**Requires `llama-server` to be installed and on your `PATH`.** If it is not found, Aria falls
+back gracefully to exact command parsing — all core features still work.
+
+### NLP Mode Prerequisites
+
+| Platform | Command |
+|---|---|
+| macOS | `brew install llama.cpp` |
+| Linux (Debian/Ubuntu) | `sudo apt install llama-cpp` |
+| Windows / other | Download a pre-built binary from the [llama.cpp releases page](https://github.com/ggerganov/llama.cpp/releases) and add it to your `PATH` |
+
+### How it works
+
+When you type something that isn't a recognised command, Aria sends it to the local model and
+executes whatever command the model returns. You always see what was interpreted:
+
+```
+You:  remind me to finish the report by next Friday
+Aria: (I interpreted: "deadline finish the report /by next Friday")
+      Got it. I've added this task:
+        [D][ ][M] finish the report (by: Mar 15 2026)
+```
+
+### Destructive commands require confirmation
+
+If the model interprets your input as a `delete` or `archive` command, Aria asks you to confirm
+before making any changes:
+
+```
+You:  remove task 3
+Aria: I interpreted that as: "delete 3"
+      This will permanently modify your task list.
+      Type yes to confirm, or anything else to cancel.
+You:  yes
+```
+
+### Chitchat and greetings
+
+Aria can also respond to greetings and simple chitchat:
+
+```
+You:  hello
+Aria: Hey there! Ready to tackle your to-do list?
+
+You:  tell me a joke
+Aria: Why did the task cross the road? To get to the deadline on time!
+```
+
+Nonsense or offensive input returns a polite "Sorry, I didn't understand that!"
 
 ---
 
@@ -321,5 +381,10 @@ Portions of this project were developed with the assistance of
 - Boilerplate code generation and refactoring
 - Writing JUnit test cases
 - JavaDoc documentation
+
+The natural language feature uses the [Qwen3.5-0.8B](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF)
+model (Q4_K_M quantisation) running locally via
+[llama.cpp](https://github.com/ggerganov/llama.cpp). All inference happens on-device —
+no data is sent to any external server.
 
 All AI-generated code was reviewed, tested, and verified by the developer.

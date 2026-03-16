@@ -7,9 +7,10 @@
 3. [Component Descriptions](#component-descriptions)
 4. [Task Type Hierarchy](#task-type-hierarchy)
 5. [Command Lifecycle](#command-lifecycle)
-6. [Storage Format](#storage-format)
-7. [Key Design Decisions](#key-design-decisions)
-8. [Testing](#testing)
+6. [Natural Language (LLM) Integration](#natural-language-llm-integration)
+7. [Storage Format](#storage-format)
+8. [Key Design Decisions](#key-design-decisions)
+9. [Testing](#testing)
 
 ---
 
@@ -174,6 +175,110 @@ Before each mutating command, `storage.getSnapshot()` pushes the current file
 contents onto a `Deque<String>` in Aria. The `undo` command pops the last
 snapshot and calls `storage.restoreFromSnapshot(snapshot)`, which rewrites the
 file and reloads the task list.
+
+---
+
+## Natural Language (LLM) Integration
+
+Aria uses a **local LLM as a fallback interpreter**: exact command parsing runs first, and only
+unrecognised input is sent to the model. Known commands have zero added latency.
+
+### Architecture
+
+```
+User input
+    │
+    ▼
+aria.tryGetResponseDirect(input)    ← exact Parser.parse() — no LLM involved
+    │ success → show result, done
+    │ AriaException (unknown command)
+    ▼
+Show "(thinking...)" bubble, disable input field
+Start daemon thread → LlmInterpreter.interpret(input)   [timeout: 15 s]
+    │
+    ├── null  (timeout / UNKNOWN / model not ready)
+    │       └─▶ "I'm not sure… type 'help'"
+    │
+    ├── CHAT: <message>   (greetings, jokes, chitchat)
+    │       └─▶ display message directly
+    │
+    ├── delete / archive / rm   (destructive)
+    │       └─▶ store in pendingLlmCommand, ask for confirmation
+    │               next input "yes" → execute | anything else → cancel
+    │
+    └── safe command  (todo, deadline, event, …)
+            └─▶ aria.executeInterpreted(cmd)
+                show "(I interpreted: "cmd")\n<result>"
+```
+
+### Key Classes
+
+| Class | Responsibility |
+|-------|---------------|
+| `aria.nlp.LlmServer` | Manages the `llama-server` subprocess; exposes `complete(prompt, maxTokens)` via its HTTP `/completion` endpoint |
+| `aria.nlp.LlmInterpreter` | Singleton wrapper; builds the prompt, calls `LlmServer`, validates and normalises the raw output |
+| `aria.Aria` | Adds `tryGetResponseDirect()` (throws `AriaException` on unknown input) and `executeInterpreted()` (runs a pre-validated LLM command) |
+| `aria.ui.MainWindow` | Drives the async flow: `Task<Void>` for model init, `Task<String>` for each LLM call, input locking, thinking bubble, confirmation dialog |
+
+### Setup and Model Resolution
+
+**Model**: Qwen3.5-0.8B (Q4_K_M quantisation, ~508 MB GGUF), bundled in `aria.jar` as a
+classpath resource at `/models/Qwen3.5-0.8B-Q4_K_M.gguf`.
+
+**Inference engine**: The system-installed `llama-server` binary (from llama.cpp) is used as a
+subprocess, communicating over HTTP on `localhost:38765`. This avoids JNI native library
+compatibility issues.
+
+**Model resolution** (`LlmServer.resolveModelFile()`):
+- Dev mode (exploded classpath): uses the model file directly via `file://` URL.
+- Fat-JAR mode: extracts the model to `./data/model-cache/` on first launch.
+
+**Binary discovery** (`LlmServer.findBinary()`): probes `llama-server` on `PATH`, then
+`/opt/homebrew/bin/`, `/usr/local/bin/`, `/usr/bin/` in order. Returns `null` if none found —
+the app falls back gracefully to exact command parsing.
+
+### Startup Flow
+
+On `MainWindow.setAria()`:
+1. Shows welcome message and startup reminders.
+2. Adds a *"Loading natural language model…"* bubble and **disables the input field**.
+3. Starts a `Task<Void>` daemon thread calling `LlmInterpreter.init()`.
+4. On success: removes the bubble, shows *"Natural language mode ready"* or *"model not available"*, re-enables input.
+
+### Prompt Design
+
+The prompt uses ChatML format (required for Qwen3 chat models) with:
+
+- **Explicit numbered rules** — e.g. "if input mentions `by [date]`, ALWAYS use `deadline`".
+- **Many few-shot examples** — covering edge cases (prefix stripping for "add todo X", todo vs
+  deadline with/without a date, event format, chitchat, gibberish).
+- **Pre-filled `<think>\n\n</think>`** — skips the model's internal reasoning step so only the
+  command string is emitted.
+- **Stop tokens**: `\n`, `<|im_end|>`, `User:` — forces single-line output.
+- **Temperature 0.0** — greedy decoding for deterministic results.
+- **Max 80 tokens** — prevents runaway generation.
+
+### Output Validation (`LlmInterpreter.validateAndNormalise`)
+
+Two-phase extraction:
+1. **Direct match**: first word must be in the `KNOWN_COMMANDS` whitelist.
+2. **Preamble strip**: if the model prepends text (e.g. "Sure! todo buy milk"), scan for the
+   first known command word at a word boundary and extract from there. Single-letter aliases
+   are excluded from this scan to avoid false matches inside ordinary words.
+
+Special outputs:
+- `UNKNOWN` → returns `null` (friendly error shown to user).
+- `CHAT: <message>` → passed through as a conversational response.
+
+### Safeguards
+
+| Safeguard | Mechanism |
+|-----------|-----------|
+| Command whitelist | `validateAndNormalise()` rejects any output whose first word is not a known command |
+| Destructive confirmation | `delete`/`archive`/`rm` from LLM require the user to type "yes" before executing |
+| Inference timeout | `CompletableFuture.get(timeout, SECONDS)` — default 15 s, overridable via `-Daria.llm.timeout=N` |
+| Input locking | TextField + Send button disabled while LLM runs; re-enabled in both success and failure handlers |
+| Graceful degradation | If `llama-server` is not installed or `init()` fails, `isReady()` stays false and `interpret()` returns `null` immediately; all exact commands continue to work |
 
 ---
 
