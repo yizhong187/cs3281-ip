@@ -1,5 +1,8 @@
 package aria.nlp;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -70,68 +73,19 @@ public class LlmInterpreter {
         );
     }
 
-    // ChatML-format system prompt tuned for a 0.8B model: short, concrete, few-shot.
-    private static final String PROMPT_TEMPLATE =
-            "<|im_start|>system\n"
-            + "You are Aria, a friendly task manager assistant."
-            + " Convert user input into ONE Aria command string.\n\n"
-            + "COMMANDS:\n"
-            + "- todo <desc> [/priority high|medium|low] [/every daily|weekly|monthly]\n"
-            + "- deadline <desc> /by <date>\n"
-            + "- event <desc> /from <date> /to <date>\n"
-            + "- list\n"
-            + "- mark <n>  |  unmark <n>  |  delete <n>\n"
-            + "- find <keyword>\n"
-            + "- sort name|priority|date\n"
-            + "- archive <n>  |  tag <n> <tag>  |  untag <n> <tag>\n"
-            + "- update <n> [/desc X] [/by X] [/priority X]\n"
-            + "- note [add <text>|list|delete <n>]\n"
-            + "- stats  |  undo  |  help  |  bye\n\n"
-            + "RULES:\n"
-            + "1. Output ONLY the command string, no explanation.\n"
-            + "2. If the input mentions a due date or \"by [date]\", ALWAYS use deadline, never todo.\n"
-            + "3. For greetings, jokes, or chitchat, output: CHAT: <short friendly reply>\n"
-            + "4. For nonsense, gibberish, or offensive input, output: CHAT: Sorry, I didn't understand that!\n"
-            + "5. If no command fits, output: UNKNOWN\n"
-            + "6. Use natural language dates (tomorrow, next Monday, Dec 25 2024)\n\n"
-            + "EXAMPLES:\n"
-            + "remind me to buy groceries -> todo buy groceries\n"
-            + "remind me to watch lecture 2 by tmr -> deadline watch lecture 2 /by tomorrow\n"
-            + "remind me to submit assignment by next Monday -> deadline submit assignment /by next Monday\n"
-            + "can you help me add a task to watch lecture 2 tmr -> deadline watch lecture 2 /by tomorrow\n"
-            + "i need to call the dentist -> todo call the dentist\n"
-            + "please add watch lecture 2 of cs2218 -> todo watch lecture 2 of cs2218\n"
-            + "add a todo i need to read my science textbook -> todo read my science textbook\n"
-            + "add todo buy milk -> todo buy milk\n"
-            + "add a task to finish the slides -> todo finish the slides\n"
-            + "create a todo call the bank -> todo call the bank\n"
-            + "can you help me add a task to read all my textbooks by tmr -> deadline read all my textbooks /by tomorrow\n"
-            + "add a task to submit the report by next Friday -> deadline submit the report /by next Friday\n"
-            + "add a task to clean the house -> todo clean the house\n"
-            + "i need to finish cs3281 homework by tmr -> deadline finish cs3281 homework /by tomorrow\n"
-            + "i need to finish cs3281 homework -> todo finish cs3281 homework\n"
-            + "i need to read the textbook by next Monday -> deadline read the textbook /by next Monday\n"
-            + "need to call the dentist by Friday -> deadline call the dentist /by Friday\n"
-            + "meeting with John next Friday 9am to 11am -> event meeting with John"
-            + " /from next Friday 9am /to next Friday 11am\n"
-            + "finish the report by end of tomorrow -> deadline finish the report /by tomorrow\n"
-            + "remove task 3 -> delete 3\n"
-            + "what are my tasks -> list\n"
-            + "high priority task to call dentist -> todo call dentist /priority high\n"
-            + "hello -> CHAT: Hey there! Ready to tackle your to-do list?\n"
-            + "hi there -> CHAT: Hi! What can I help you get done today?\n"
-            + "tell me a joke -> CHAT: Why did the task cross the road? To get to the deadline on time!\n"
-            + "how are you -> CHAT: I'm doing great and ready to help you stay on top of things!\n"
-            + "asdfjklqwerty -> CHAT: Sorry, I didn't understand that!\n"
-            + "hfkjsdhkfjsdh -> CHAT: Sorry, I didn't understand that!\n"
-            + "<|im_end|>\n"
-            + "<|im_start|>user\n"
-            + "{USER_INPUT}\n"
-            + "<|im_end|>\n"
-            + "<|im_start|>assistant\n"
-            // Pre-fill the thinking block as empty so the model skips reasoning
-            // and outputs only the command string (required for Qwen3 thinking models).
-            + "<think>\n\n</think>\n";
+    // ChatML-format system prompt loaded from resources/nlp/prompt_template.txt
+    private static final String PROMPT_TEMPLATE = loadPromptTemplate();
+
+    private static String loadPromptTemplate() {
+        try (InputStream is = LlmInterpreter.class.getResourceAsStream("/nlp/prompt_template.txt")) {
+            if (is == null) {
+                throw new IllegalStateException("prompt_template.txt not found in resources");
+            }
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to load prompt_template.txt", e);
+        }
+    }
 
     // ── Singleton ──────────────────────────────────────────────────────────────
 
