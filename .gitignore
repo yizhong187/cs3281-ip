@@ -13,5 +13,14 @@ src/main/resources/docs/
 *.iml
 bin/
 
+# Local LLMs
+/src/main/resources/models/
+
+# Claude Code settings
+.claude/settings.local.json
+
+# Local task data
+/data/aria.txt
+
 /text-ui-test/ACTUAL.TXT
 text-ui-test/EXPECTED-UNIX.TXT

@@ -108,29 +108,63 @@ public class Aria {
 
     /**
      * Generates a response string for the given user input (used by the GUI).
+     * Wraps {@link #tryGetResponseDirect(String)} and returns the error message on failure.
      *
      * @param input the user's input string
      * @return the response message
      */
     public String getResponse(String input) {
+        try {
+            return tryGetResponseDirect(input);
+        } catch (AriaException e) {
+            return e.getMessage();
+        }
+    }
+
+    /**
+     * Attempts to parse and execute the input using the traditional command parser.
+     * Unlike {@link #getResponse(String)}, this method propagates {@link AriaException}
+     * so callers can detect an unrecognised command and trigger the LLM fallback.
+     *
+     * @param input the user's input string
+     * @return the response message
+     * @throws AriaException if the input is not a recognised command
+     */
+    public String tryGetResponseDirect(String input) throws AriaException {
         if (input == null || input.trim().isEmpty()) {
             return "Please enter a command. Type 'help' to see available commands.";
         }
+        Command command = Parser.parse(input);
+        if (command.isMutating()) {
+            undoStack.push(storage.getSnapshot());
+        }
+        if (command.getType() == CommandType.UNDO) {
+            if (undoStack.isEmpty()) {
+                return "Nothing to undo.";
+            }
+            taskList = storage.restoreFromSnapshot(undoStack.pop());
+            return "Last action undone.";
+        }
+        return command.getOutput(taskList, storage);
+    }
+
+    /**
+     * Executes a pre-validated command string produced by the LLM interpreter.
+     * The command string must already have been checked against the known-command
+     * whitelist before calling this method.
+     *
+     * @param commandString the LLM-generated command string
+     * @return the response message
+     */
+    public String executeInterpreted(String commandString) {
         try {
-            Command command = Parser.parse(input);
+            Command command = Parser.parse(commandString);
             if (command.isMutating()) {
                 undoStack.push(storage.getSnapshot());
             }
-            if (command.getType() == CommandType.UNDO) {
-                if (undoStack.isEmpty()) {
-                    return "Nothing to undo.";
-                }
-                taskList = storage.restoreFromSnapshot(undoStack.pop());
-                return "Last action undone.";
-            }
             return command.getOutput(taskList, storage);
         } catch (AriaException e) {
-            return e.getMessage();
+            return "I understood your intent but couldn't execute it: " + e.getMessage();
         }
     }
 

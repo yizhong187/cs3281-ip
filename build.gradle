@@ -76,6 +76,7 @@ application {
 shadowJar {
     archiveBaseName = "aria"
     archiveClassifier = null
+    mergeServiceFiles()
 }
 
 run {

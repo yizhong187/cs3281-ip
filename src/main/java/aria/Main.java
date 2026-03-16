@@ -2,6 +2,7 @@ package aria;
 
 import java.io.IOException;
 
+import aria.nlp.LlmInterpreter;
 import aria.ui.MainWindow;
 
 import javafx.application.Application;
@@ -39,5 +40,10 @@ public class Main extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void stop() {
+        LlmInterpreter.getInstance().close();
     }
 }
