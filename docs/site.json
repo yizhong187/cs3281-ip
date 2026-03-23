@@ -1,0 +1,26 @@
+{
+  "baseUrl": "",
+  "titlePrefix": "",
+  "titleSuffix": "",
+  "timeZone": "Asia/Singapore",
+  "ignore": [
+    "_markbind/layouts/*",
+    "_markbind/logs/*",
+    "_site/*",
+    "site.json",
+    "*.md",
+    "*.njk",
+    ".git/*",
+    ".gitignore",
+    "node_modules/*"
+  ],
+  "pagesExclude": ["node_modules/*"],
+  "pages": [
+    { "src": "README.md", "title": "User Guide" },
+    { "src": "DeveloperGuide.md", "title": "Developer Guide" },
+    { "src": "tutorials/localLLMTutorial.md", "title": "Local LLM Tutorial" }
+  ],
+  "deploy": {
+    "message": "Site Update."
+  }
+}
